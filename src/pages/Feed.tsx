@@ -1,31 +1,25 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 import type { Post } from "../types/Post";
-import PostCard from "../components/PostCard";
 
 export default function Feed() {
   const [posts, setPosts] = useState<Post[]>([]);
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    if (!token) return; // ⛔ NÃO busca sem token
-
-    api.get<Post[]>("/posts/")
-      .then(res => setPosts(res.data))
-      .catch(err => {
-        console.error("Erro ao carregar feed", err);
+    api
+      .get("/feed/")
+      .then((response) => setPosts(response.data))
+      .catch((error) => {
+        console.error("Erro ao carregar feed", error);
       });
-  }, [token]);
-
-  if (!token) {
-    return <p>Você precisa estar logado.</p>;
-  }
+  }, []);
 
   return (
-    <>
-      {posts.map(post => (
-        <PostCard key={post.id} post={post} />
+    <div>
+      <h1>Feed</h1>
+      {posts.map((post) => (
+        <p key={post.id}>{post.content}</p>
       ))}
-    </>
+    </div>
   );
 }
