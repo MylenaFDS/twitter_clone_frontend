@@ -1,43 +1,31 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../services/api";
-import { getAuthHeaders } from "../services/auth";
-import Post from "../components/Post";
+import type { Post } from "../types/Post";
+import PostCard from "../components/PostCard";
 
-interface CommentData { id: number; author: string; content: string; }
-interface PostData { id: number; author: string; content: string; likes: number; comments: CommentData[]; }
-
-const Feed: React.FC = () => {
-  const [posts, setPosts] = useState<PostData[]>([]);
+export default function Feed() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const res = await api.get("/posts/", { headers: getAuthHeaders() });
-        setPosts(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchPosts();
-  }, []);
+    if (!token) return; // ⛔ NÃO busca sem token
 
-  const handleLike = async (id: number) => {
-    try {
-      await api.post(`/posts/${id}/like/`, {}, { headers: getAuthHeaders() });
-      setPosts(prev => prev.map(p => p.id === id ? { ...p, likes: p.likes + 1 } : p));
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    api.get<Post[]>("/posts/")
+      .then(res => setPosts(res.data))
+      .catch(err => {
+        console.error("Erro ao carregar feed", err);
+      });
+  }, [token]);
+
+  if (!token) {
+    return <p>Você precisa estar logado.</p>;
+  }
 
   return (
-    <div>
+    <>
       {posts.map(post => (
-        <Post key={post.id} {...post} onLike={handleLike} />
+        <PostCard key={post.id} post={post} />
       ))}
-    </div>
+    </>
   );
-};
-
-export default Feed;
-
+}

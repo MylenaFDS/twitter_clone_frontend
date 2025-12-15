@@ -1,22 +1,22 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Navbar from "./components/Navbar";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Feed from "./pages/Feed";
-import Profile from "./pages/Profile";
+import Login from "./pages/Login";
 
-const App: React.FC = () => (
-  <Router>
-    <Navbar />
-    <Routes>
-      <Route path="/" element={<Feed />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/profile" element={<Profile />} />
-    </Routes>
-  </Router>
-);
+export default function App() {
+  const isAuthenticated = !!localStorage.getItem("token");
 
-export default App;
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route
+          path="/"
+          element={isAuthenticated ? <Feed /> : <Navigate to="/login" />}
+        />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+
 
