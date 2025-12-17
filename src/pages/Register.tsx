@@ -1,31 +1,73 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { register } from "../services/auth";
+import api from "../services/api";
 
-const Register: React.FC = () => {
+export default function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
   const navigate = useNavigate();
 
-  const handleRegister = async (e: React.FormEvent) => {
+  async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError("");
+    setLoading(true);
+
     try {
-      await register(username, email, password);
+      await api.post("/users/", {
+        username,
+        email,
+        password,
+      });
+
+      alert("Cadastro realizado com sucesso!");
       navigate("/login");
-    } catch {
-      alert("Registration failed");
+    } catch (err) {
+      setError("Erro ao realizar cadastro");
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
   return (
     <form onSubmit={handleRegister} className="form">
-      <input type="text" placeholder="Username" value={username} onChange={e => setUsername(e.target.value)} required />
-      <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
-      <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
-      <button type="submit">Register</button>
+      <h2>Criar conta</h2>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <input
+        type="text"
+        placeholder="Usuário"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        required
+      />
+
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+
+      <input
+        type="password"
+        placeholder="Senha"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+
+      <button type="submit" disabled={loading}>
+        {loading ? "Criando conta..." : "Registrar"}
+      </button>
     </form>
   );
-};
+}
 
-export default Register;

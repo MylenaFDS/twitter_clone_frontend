@@ -1,42 +1,80 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../services/api";
-import { getAuthHeaders } from "../services/auth";
 
-const Profile: React.FC = () => {
+interface ProfileResponse {
+  username: string;
+  email: string;
+}
+
+export default function Profile() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
   useEffect(() => {
-    const fetchProfile = async () => {
+    async function fetchProfile() {
       try {
-        const res = await api.get("/profile/", { headers: getAuthHeaders() });
-        setUsername(res.data.username);
-        setEmail(res.data.email);
+        const response = await api.get<ProfileResponse>("/profile/");
+        setUsername(response.data.username);
+        setEmail(response.data.email);
       } catch (err) {
+        setError("Erro ao carregar perfil");
         console.error(err);
+      } finally {
+        setLoading(false);
       }
-    };
+    }
+
     fetchProfile();
   }, []);
 
-  const handleUpdate = async (e: React.FormEvent) => {
+  async function handleUpdate(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError("");
+
     try {
-      await api.put("/profile/", { username, email }, { headers: getAuthHeaders() });
-      alert("Profile updated");
-    } catch {
-      alert("Update failed");
+      await api.put("/profile/", {
+        username,
+        email,
+      });
+      alert("Perfil atualizado com sucesso");
+    } catch (err) {
+      setError("Erro ao atualizar perfil");
+      console.error(err);
     }
-  };
+  }
+
+  if (loading) {
+    return <p>Carregando perfil...</p>;
+  }
 
   return (
     <form onSubmit={handleUpdate} className="form">
-      <input type="text" value={username} onChange={e => setUsername(e.target.value)} />
-      <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
-      <button type="submit">Update Profile</button>
+      <h2>Meu perfil</h2>
+
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <input
+        type="text"
+        placeholder="Usuário"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        required
+      />
+
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+
+      <button type="submit">Atualizar perfil</button>
     </form>
   );
-};
+}
 
-export default Profile;
 
