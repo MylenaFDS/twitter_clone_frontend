@@ -1,6 +1,7 @@
 import { useState } from "react";
-import "../styles/auth.css";
+import { Link } from "react-router-dom";
 import api from "../services/api";
+import "../styles/auth.css";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -20,12 +21,9 @@ export default function Login() {
       });
 
       localStorage.setItem("token", response.data.access);
-
-      // força re-render do App.tsx
       window.location.href = "/";
-    } catch (err) {
+    } catch {
       setError("Usuário ou senha inválidos");
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -57,6 +55,12 @@ export default function Login() {
         <button type="submit" disabled={loading}>
           {loading ? "Entrando..." : "Entrar"}
         </button>
+
+        {/* LINKS */}
+        <div className="login-links">
+          <Link to="/forgot-password">Esqueceu a senha?</Link>
+          <Link to="/register">Cadastre-se</Link>
+        </div>
       </form>
     </div>
   );
