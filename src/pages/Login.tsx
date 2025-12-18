@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "../styles/auth.css";
 
@@ -8,6 +8,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -21,7 +23,7 @@ export default function Login() {
       });
 
       localStorage.setItem("token", response.data.access);
-      window.location.href = "/";
+      navigate("/");
     } catch {
       setError("Usuário ou senha inválidos");
     } finally {
@@ -56,7 +58,6 @@ export default function Login() {
           {loading ? "Entrando..." : "Entrar"}
         </button>
 
-        {/* LINKS */}
         <div className="login-links">
           <Link to="/forgot-password">Esqueceu a senha?</Link>
           <Link to="/register">Cadastre-se</Link>

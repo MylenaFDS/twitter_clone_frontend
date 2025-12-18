@@ -1,0 +1,66 @@
+/* CONTAINER PRINCIPAL DO FEED */
+.feed-container {
+  max-width: 600px;
+  margin: 0 auto;
+  border-left: 1px solid #2f3336;
+  border-right: 1px solid #2f3336;
+  min-height: 100vh;
+}
+
+/* TOPO */
+.feed-header {
+  padding: 16px;
+  font-size: 20px;
+  font-weight: 800;
+  color: #e7e9ea;
+  border-bottom: 1px solid #2f3336;
+  position: sticky;
+  top: 0;
+  background-color: #000;
+}
+
+/* CARD DO TWEET */
+.tweet-card {
+  padding: 16px;
+  border-bottom: 1px solid #2f3336;
+  cursor: pointer;
+}
+
+.tweet-card:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+/* USUÁRIO */
+.tweet-username {
+  font-weight: 700;
+  color: #e7e9ea;
+  margin-bottom: 4px;
+}
+
+/* TEXTO */
+.tweet-content {
+  color: #e7e9ea;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* AÇÕES */
+.tweet-actions {
+  display: flex;
+  gap: 24px;
+  margin-top: 12px;
+  color: #71767b;
+  font-size: 14px;
+}
+
+.tweet-actions span:hover {
+  color: #1d9bf0;
+  cursor: pointer;
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+  .feed-container {
+    border: none;
+  }
+}
