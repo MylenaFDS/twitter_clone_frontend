@@ -1,35 +1,80 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
+import "../styles/auth.css";
 
 export default function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
 
-  async function handleRegister(e: React.FormEvent) {
+  async function handleRegister(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setError("");
+    setLoading(true);
 
     try {
-      await api.post("/register/", {
+      await api.post("/users/", {
         username,
         email,
         password,
       });
 
       navigate("/login");
-    } catch  {
-      alert("Erro ao cadastrar usuário");
+    } catch {
+      setError("Erro ao criar conta. Verifique os dados.");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
-    <form onSubmit={handleRegister}>
-      <input placeholder="Username" onChange={e => setUsername(e.target.value)} />
-      <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
-      <input type="password" placeholder="Senha" onChange={e => setPassword(e.target.value)} />
-      <button>Cadastrar</button>
-    </form>
+    <div className="login-container">
+      <form onSubmit={handleRegister} className="login-box">
+        <h1>Criar conta</h1>
+
+        {error && <p className="error">{error}</p>}
+
+        <input
+          type="text"
+          placeholder="Nome de usuário"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+        />
+
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Senha"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+
+        <button type="submit" disabled={loading}>
+          {loading ? "Criando conta..." : "Cadastrar"}
+        </button>
+
+        <div className="login-links center">
+          <span>
+            Já tem conta? <Link to="/login">Entrar</Link>
+          </span>
+        </div>
+      </form>
+    </div>
   );
 }
+
+
