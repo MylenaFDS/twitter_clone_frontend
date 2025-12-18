@@ -3,14 +3,20 @@ import "../styles/layout.css";
 
 export default function Sidebar() {
   return (
-    <nav className="sidebar">
+    <aside className="sidebar">
       <h2 className="logo">𝕏</h2>
 
-      <Link to="/">🏠 Home</Link>
-      <Link to="/profile">👤 Perfil</Link>
-      <Link to="/login" onClick={() => localStorage.removeItem("token")}>
-        🚪 Sair
-      </Link>
-    </nav>
+      <nav className="sidebar-menu">
+        <Link to="/">🏠 <span>Home</span></Link>
+        <Link to="/profile">👤 <span>Perfil</span></Link>
+        <Link
+          to="/login"
+          onClick={() => localStorage.removeItem("token")}
+        >
+          🚪 <span>Sair</span>
+        </Link>
+      </nav>
+    </aside>
   );
 }
+

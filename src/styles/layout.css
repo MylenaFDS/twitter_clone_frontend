@@ -7,27 +7,46 @@
 }
 
 .sidebar {
-  padding: 1rem;
-  border-right: 1px solid #e1e8ed;
+  width: 260px;
+  padding: 20px;
+  border-right: 1px solid #2f3336;
+  background-color: #000;
+  position: sticky;
+  top: 0;
+  height: 100vh;
 }
+
 
 .sidebar .logo {
-  font-size: 2rem;
-  margin-bottom: 2rem;
+  color: #e7e9ea;
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 32px;
 }
 
-.sidebar a {
-  display: block;
-  font-size: 1.1rem;
-  padding: 10px;
+
+/* MENU */
+.sidebar-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-menu a {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
   border-radius: 9999px;
-  color: black;
+  font-size: 18px;
+  font-weight: 600;
+  color: #e7e9ea;
   text-decoration: none;
+  transition: background 0.2s ease;
 }
 
-.sidebar a:hover {
-  background-color: #e8f5fd;
-  color: #1da1f2;
+.sidebar-menu a:hover {
+  background-color: rgba(231, 233, 234, 0.1);
 }
 
 .content {
@@ -43,4 +62,23 @@
 
 .right-bar {
   padding: 1rem;
+}
+
+/* CONTEÚDO (FEED) */
+.main-content {
+  flex: 1;
+  max-width: 600px;
+  border-right: 1px solid #2f3336;
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 72px;
+    padding: 12px;
+  }
+
+  .sidebar-menu span {
+    display: none;
+  }
 }
