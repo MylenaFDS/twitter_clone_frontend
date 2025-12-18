@@ -18,7 +18,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await api.post("/users/", {
+      await api.post("/register/", {
         username,
         email,
         password,
@@ -76,5 +76,3 @@ export default function Register() {
     </div>
   );
 }
-
-
