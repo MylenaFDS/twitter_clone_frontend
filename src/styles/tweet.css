@@ -1,0 +1,20 @@
+.tweet {
+  display: flex;
+  padding: 1rem;
+  border-bottom: 1px solid #e1e8ed;
+}
+
+.avatar {
+  font-size: 2rem;
+  margin-right: 1rem;
+}
+
+.tweet-body p {
+  margin: 0.5rem 0;
+}
+
+.tweet-actions {
+  display: flex;
+  gap: 1rem;
+  color: #657786;
+}
