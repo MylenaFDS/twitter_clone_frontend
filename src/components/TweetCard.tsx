@@ -1,42 +1,24 @@
 import "../styles/tweet.css";
+import type { Tweet } from "../types/Tweet";
 
 interface TweetProps {
-  username: string;
-  content: string;
-  time?: string;
+  tweet: Tweet;
 }
 
-export default function TweetCard({
-  username,
-  content,
-  time = "agora",
-}: TweetProps) {
+export default function TweetCard({ tweet }: TweetProps) {
   return (
     <div className="tweet">
-      {/* Avatar */}
-      <div className="tweet-avatar">
-        <span>👤</span>
-      </div>
+      <div className="avatar">👤</div>
 
-      {/* Conteúdo */}
-      <div className="tweet-content">
-        {/* Header */}
-        <div className="tweet-header">
-          <span className="tweet-name">{username}</span>
-          <span className="tweet-username">@{username}</span>
-          <span className="tweet-dot">·</span>
-          <span className="tweet-time">{time}</span>
-        </div>
+      <div className="tweet-body">
+        <strong>@{tweet.username}</strong>
+        <p>{tweet.content}</p>
 
-        {/* Texto */}
-        <p className="tweet-text">{content}</p>
-
-        {/* Ações */}
         <div className="tweet-actions">
-          <button title="Responder">💬</button>
-          <button title="Repostar">🔁</button>
-          <button title="Curtir">❤️</button>
-          <button title="Compartilhar">📤</button>
+          <span>💬</span>
+          <span>🔁</span>
+          <span>❤️</span>
+          <span>📤</span>
         </div>
       </div>
     </div>

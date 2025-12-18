@@ -1,16 +1,23 @@
 import { useState } from "react";
+import type { Tweet } from "../types/Tweet";
 import "../styles/tweetbox.css";
 
-export default function TweetBox() {
-  const [content, setContent] = useState("");
+interface Props {
+  onTweet: (tweet: Tweet) => void;
+}
 
-  const maxLength = 280;
+export default function TweetBox({ onTweet }: Props) {
+  const [content, setContent] = useState("");
 
   function handleTweet() {
     if (!content.trim()) return;
 
-    // por enquanto só visual (backend depois)
-    console.log("Tweet:", content);
+    onTweet({
+      id: Date.now(),
+      username: "adminuser",
+      content,
+    });
+
     setContent("");
   }
 
@@ -22,23 +29,11 @@ export default function TweetBox() {
         <textarea
           placeholder="O que está acontecendo?"
           value={content}
-          maxLength={maxLength}
           onChange={(e) => setContent(e.target.value)}
         />
 
         <div className="tweetbox-footer">
-          <span
-            className={`counter ${
-              content.length > maxLength - 20 ? "danger" : ""
-            }`}
-          >
-            {maxLength - content.length}
-          </span>
-
-          <button
-            disabled={!content.trim()}
-            onClick={handleTweet}
-          >
+          <button disabled={!content.trim()} onClick={handleTweet}>
             Tweetar
           </button>
         </div>
@@ -46,3 +41,4 @@ export default function TweetBox() {
     </div>
   );
 }
+
