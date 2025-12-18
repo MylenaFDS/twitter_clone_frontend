@@ -1,0 +1,21 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+
+  height: 56px;
+  display: flex;
+  align-items: center;
+
+  padding: 0 16px;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(12px);
+
+  border-bottom: 1px solid #2f3336;
+}
+
+.topbar h1 {
+  color: #e7e9ea;
+  font-size: 20px;
+  font-weight: 800;
+}
