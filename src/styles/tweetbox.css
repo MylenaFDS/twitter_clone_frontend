@@ -1,0 +1,62 @@
+.tweetbox {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-bottom: 1px solid #2f3336;
+}
+
+.tweetbox-avatar {
+  font-size: 32px;
+}
+
+.tweetbox-body {
+  flex: 1;
+}
+
+.tweetbox textarea {
+  width: 100%;
+  resize: none;
+  background: transparent;
+  border: none;
+  outline: none;
+
+  color: #e7e9ea;
+  font-size: 20px;
+  line-height: 1.4;
+  min-height: 80px;
+}
+
+.tweetbox textarea::placeholder {
+  color: #71767b;
+}
+
+.tweetbox-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.counter {
+  font-size: 13px;
+  color: #71767b;
+}
+
+.counter.danger {
+  color: #f4212e;
+}
+
+.tweetbox-footer button {
+  background-color: #1d9bf0;
+  border: none;
+  color: #fff;
+  font-weight: 700;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+.tweetbox-footer button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
