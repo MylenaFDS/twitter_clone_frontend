@@ -1,23 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import TopBar from "../components/TopBar";
 import TweetBox from "../components/TweetBox";
 import TweetCard from "../components/TweetCard";
 import type { Tweet } from "../types/Tweet";
+import { getTweets } from "../services/tweets";
 
 export default function Feed() {
-  const [tweets, setTweets] = useState<Tweet[]>([
-    {
-      id: 1,
-      username: "adminuser",
-      content: "Meu primeiro tweet 🚀",
-    },
-    {
-      id: 2,
-      username: "mylenafds",
-      content: "Clone do Twitter em React + Django 😍",
-    },
-  ]);
+  const [tweets, setTweets] = useState<Tweet[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadTweets() {
+      try {
+        const data = await getTweets();
+        setTweets(data);
+      } catch {
+        alert("Erro ao carregar feed");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadTweets();
+  }, []);
 
   function handleNewTweet(tweet: Tweet) {
     setTweets((prev) => [tweet, ...prev]);
@@ -28,10 +34,13 @@ export default function Feed() {
       <TopBar />
       <TweetBox onTweet={handleNewTweet} />
 
+      {loading && <p style={{ color: "#71767b" }}>Carregando...</p>}
+
       {tweets.map((tweet) => (
         <TweetCard key={tweet.id} tweet={tweet} />
       ))}
     </Layout>
   );
 }
+
 

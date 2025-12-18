@@ -1,19 +1,25 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://127.0.0.1:9000/api/",
+  baseURL: "http://127.0.0.1:9000/api",
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-// 🔐 Interceptor: adiciona o token automaticamente
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("token");
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+    if (token) {
+      config.headers = config.headers ?? {};
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
 
-  return config;
-});
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 export default api;
 

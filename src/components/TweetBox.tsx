@@ -1,6 +1,7 @@
 import { useState } from "react";
-import type { Tweet } from "../types/Tweet";
 import "../styles/tweetbox.css";
+import type { Tweet } from "../types/Tweet";
+import { createTweet } from "../services/tweets";
 
 interface Props {
   onTweet: (tweet: Tweet) => void;
@@ -8,17 +9,22 @@ interface Props {
 
 export default function TweetBox({ onTweet }: Props) {
   const [content, setContent] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleTweet() {
+  async function handleTweet() {
     if (!content.trim()) return;
 
-    onTweet({
-      id: Date.now(),
-      username: "adminuser",
-      content,
-    });
+    try {
+      setLoading(true);
 
-    setContent("");
+      const newTweet = await createTweet({ content });
+      onTweet(newTweet);
+      setContent("");
+    } catch {
+      alert("Erro ao publicar tweet");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -33,8 +39,11 @@ export default function TweetBox({ onTweet }: Props) {
         />
 
         <div className="tweetbox-footer">
-          <button disabled={!content.trim()} onClick={handleTweet}>
-            Tweetar
+          <button
+            disabled={!content.trim() || loading}
+            onClick={handleTweet}
+          >
+            {loading ? "Tweetando..." : "Tweetar"}
           </button>
         </div>
       </div>
