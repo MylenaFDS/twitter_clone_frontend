@@ -1,0 +1,26 @@
+.profile-header {
+  padding: 16px;
+  border-bottom: 1px solid #2f3336;
+}
+
+.profile-header h2 {
+  color: #e7e9ea;
+  font-size: 20px;
+  font-weight: 800;
+}
+.tweet {
+  transition: background 0.2s ease;
+}
+
+.tweet:hover {
+  background-color: #080808;
+}
+.tweet-actions button:active {
+  transform: scale(0.9);
+}
+.profile-header span {
+  display: block;
+  margin-top: 4px;
+  font-size: 14px;
+  color: #71767b;
+}

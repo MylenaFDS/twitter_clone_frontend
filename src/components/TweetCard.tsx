@@ -7,20 +7,32 @@ interface TweetProps {
 
 export default function TweetCard({ tweet }: TweetProps) {
   return (
-    <div className="tweet">
-      <div className="avatar">👤</div>
+    <article className="tweet">
+      {/* AVATAR */}
+      <div className="tweet-avatar">👤</div>
 
-      <div className="tweet-body">
-        <strong>@{tweet.username}</strong>
-        <p>{tweet.content}</p>
+      {/* CONTEÚDO */}
+      <div className="tweet-content">
+        {/* HEADER */}
+        <div className="tweet-header">
+          <span className="tweet-name">
+            @{tweet.author.username}
+          </span>
+        </div>
 
+        {/* TEXTO */}
+        <p className="tweet-text">{tweet.content}</p>
+
+        {/* AÇÕES */}
         <div className="tweet-actions">
-          <span>💬</span>
-          <span>🔁</span>
-          <span>❤️</span>
-          <span>📤</span>
+          <button aria-label="Comentar">💬</button>
+          <button aria-label="Retweetar">🔁</button>
+          <button aria-label="Curtir">
+            ❤️ {tweet.likes_count}
+          </button>
+          <button aria-label="Compartilhar">📤</button>
         </div>
       </div>
-    </div>
+    </article>
   );
 }

@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
-import Layout from "../components/Layout";
 import TweetBox from "../components/TweetBox";
 import TweetCard from "../components/TweetCard";
 import type { Tweet } from "../types/Tweet";
 import { getTweets } from "../services/tweets";
-
+import TopBar from "../components/TopBar";
 export default function Feed() {
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [loading, setLoading] = useState(true);
+
 
   useEffect(() => {
     async function loadTweets() {
@@ -29,16 +29,22 @@ export default function Feed() {
   }
 
   return (
-    <Layout>
-      <TweetBox onTweet={handleNewTweet} />
+  <>
+  <TopBar />
+    <TweetBox onTweet={handleNewTweet} />
 
-      {loading && <p style={{ color: "#71767b" }}>Carregando...</p>}
+    {loading && (
+      <p style={{ color: "#71767b", padding: "16px" }}>
+        Carregando...
+      </p>
+    )}
 
-      {tweets.map((tweet) => (
-        <TweetCard key={tweet.id} tweet={tweet} />
-      ))}
-    </Layout>
-  );
+    {tweets.map((tweet) => (
+      <TweetCard key={tweet.id} tweet={tweet} />
+    ))}
+  </>
+);
+
 }
 
 

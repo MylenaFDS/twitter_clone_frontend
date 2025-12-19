@@ -1,80 +1,34 @@
 import { useEffect, useState } from "react";
-import api from "../services/api";
-
-interface ProfileResponse {
-  username: string;
-  email: string;
-}
+import TweetCard from "../components/TweetCard";
+import type { Tweet } from "../types/Tweet";
+import "../styles/profile.css";
 
 export default function Profile() {
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [tweets, setTweets] = useState<Tweet[]>([]);
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    async function fetchProfile() {
-      try {
-        const response = await api.get<ProfileResponse>("/profile/");
-        setUsername(response.data.username);
-        setEmail(response.data.email);
-      } catch (err) {
-        setError("Erro ao carregar perfil");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
+    if (!token) return;
 
-    fetchProfile();
-  }, []);
-
-  async function handleUpdate(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError("");
-
-    try {
-      await api.put("/profile/", {
-        username,
-        email,
-      });
-      alert("Perfil atualizado com sucesso");
-    } catch (err) {
-      setError("Erro ao atualizar perfil");
-      console.error(err);
-    }
-  }
-
-  if (loading) {
-    return <p>Carregando perfil...</p>;
-  }
+    fetch("http://127.0.0.1:9000/api/posts/?author=me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data: Tweet[]) => setTweets(data));
+  }, [token]);
 
   return (
-    <form onSubmit={handleUpdate} className="form">
-      <h2>Meu perfil</h2>
+    <div>
+      <div className="profile-header">
+        <h2>Meu perfil</h2>
+        <span>{tweets.length} Tweets</span>
+      </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <input
-        type="text"
-        placeholder="Usuário"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        required
-      />
-
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-
-      <button type="submit">Atualizar perfil</button>
-    </form>
+      {tweets.map((tweet) => (
+        <TweetCard key={tweet.id} tweet={tweet} />
+      ))}
+    </div>
   );
 }
-
-

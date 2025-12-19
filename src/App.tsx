@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Feed from "./pages/Feed";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Profile from "./pages/Profile";
+import Layout from "./components/Layout";
 
 export default function App() {
   const isAuthenticated = !!localStorage.getItem("token");
@@ -9,17 +11,39 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* 🔓 Rotas públicas */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<div>Recuperar senha (em breve)</div>} />
         <Route
-          path="/"
-          element={isAuthenticated ? <Feed /> : <Navigate to="/login" />}
+          path="/forgot-password"
+          element={<div>Recuperar senha (em breve)</div>}
         />
+
+        {/* 🔐 Rotas protegidas */}
+        {isAuthenticated ? (
+          <>
+            <Route
+              path="/"
+              element={
+                <Layout>
+                  <Feed />
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/profile"
+              element={
+                <Layout>
+                  <Profile />
+                </Layout>
+              }
+            />
+          </>
+        ) : (
+          <Route path="*" element={<Navigate to="/login" />} />
+        )}
       </Routes>
     </BrowserRouter>
   );
 }
-
-
-

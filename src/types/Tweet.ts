@@ -1,5 +1,12 @@
 export interface Tweet {
   id: number;
-  username: string;
+  author: {
+    id: number;
+    username: string;
+  };
   content: string;
+  created_at: string;
+  likes_count: number;
+  liked?: boolean;
 }
+
