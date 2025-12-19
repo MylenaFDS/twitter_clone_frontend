@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import TopBar from "../components/TopBar";
 import TweetBox from "../components/TweetBox";
 import TweetCard from "../components/TweetCard";
 import type { Tweet } from "../types/Tweet";
@@ -31,7 +30,6 @@ export default function Feed() {
 
   return (
     <Layout>
-      <TopBar />
       <TweetBox onTweet={handleNewTweet} />
 
       {loading && <p style={{ color: "#71767b" }}>Carregando...</p>}

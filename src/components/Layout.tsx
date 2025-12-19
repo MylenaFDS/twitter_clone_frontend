@@ -1,5 +1,5 @@
 import Sidebar from "./Sidebar";
-import Header from "./Header";
+import TopBar from "./TopBar";
 import "../styles/layout.css";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -7,7 +7,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <div className="layout">
       <Sidebar />
       <main className="content">
-        <Header />
+        <TopBar />
         {children}
       </main>
       <aside className="right-bar" />
