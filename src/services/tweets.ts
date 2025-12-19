@@ -13,6 +13,6 @@ export async function createTweet(
 }
 
 export async function getTweets(): Promise<Tweet[]> {
-  const response = await api.get("/posts/");
+  const response = await api.get("posts/");
   return response.data;
 }
