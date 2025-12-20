@@ -13,7 +13,7 @@ type Props = {
     bio: string;
     avatar: string;
     banner: string;
-  }) => void;
+  }) => Promise<void> | void;
 };
 
 export default function EditProfileModal({
@@ -31,32 +31,10 @@ export default function EditProfileModal({
 
   async function handleSave() {
     setLoading(true);
-
     try {
-      const res = await fetch("http://127.0.0.1:9000/api/me/", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          bio,
-          avatar,
-          banner,
-        }),
-      });
-
-      const data = await res.json();
-
-      // 🔁 Atualiza o Profile
-      onSave({
-        bio: data.bio ?? "",
-        avatar: data.avatar ?? "",
-        banner: data.banner ?? "",
-      });
-
+      await onSave({ bio, avatar, banner });
       onClose();
-    } catch  {
+    } catch {
       alert("Erro ao salvar perfil");
     } finally {
       setLoading(false);

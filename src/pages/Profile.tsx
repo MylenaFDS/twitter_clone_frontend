@@ -49,9 +49,30 @@ export default function Profile() {
       .then((data: Tweet[]) => setTweets(data));
   }, [token]);
 
-  function handleSaveProfile(updatedData: UserProfile) {
-    setUser(updatedData);
+  async function handleSaveProfile(updatedData: UserProfile) {
+  if (!token) return;
+
+  const res = await fetch("http://127.0.0.1:9000/api/me/", {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(updatedData),
+  });
+
+  if (!res.ok) {
+    throw new Error("Erro ao salvar perfil");
   }
+
+  const data = await res.json();
+  setUser({
+    bio: data.bio,
+    avatar: data.avatar,
+    banner: data.banner,
+  });
+}
+
 
   return (
     <div className="profile">
