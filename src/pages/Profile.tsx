@@ -18,6 +18,7 @@ export default function Profile() {
   });
 
   const [isEditing, setIsEditing] = useState(false);
+  const [editedBio, setEditedBio] = useState("");
 
   const token = localStorage.getItem("token");
 
@@ -30,13 +31,14 @@ export default function Profile() {
       },
     })
       .then((res) => res.json())
-      .then((data) =>
+      .then((data) => {
         setUser({
           bio: data.bio || "",
           avatar: data.avatar || "",
           banner: data.banner || "",
-        })
-      );
+        });
+        setEditedBio(data.bio || "");
+      });
 
     fetch("http://127.0.0.1:9000/api/posts/?author=me", {
       headers: {
@@ -47,42 +49,46 @@ export default function Profile() {
       .then((data: Tweet[]) => setTweets(data));
   }, [token]);
 
+  function handleSaveProfile() {
+    setUser((prev) => ({
+      ...prev,
+      bio: editedBio,
+    }));
+    setIsEditing(false);
+  }
+
   return (
-    <div>
+    <div className="profile">
       {/* 🔹 Banner */}
       <div
         className="profile-banner"
         style={{
-          backgroundImage: user.banner
-            ? `url(${user.banner})`
-            : undefined,
+          backgroundImage: user.banner ? `url(${user.banner})` : undefined,
         }}
       />
 
-      {/* 🔹 Header */}
-      <div className="profile-header">
+      {/* 🔹 Avatar + botão */}
+      <div className="profile-top">
         <img
           className="profile-avatar"
           src={user.avatar || "https://via.placeholder.com/120"}
           alt="Avatar"
         />
 
-        {/* 🔹 Botão editar */}
         <button
           className="edit-profile-btn"
           onClick={() => setIsEditing(true)}
         >
           Editar perfil
         </button>
+      </div>
 
-        <div className="profile-info">
-          <h2>Meu perfil</h2>
-          <span>{tweets.length} Tweets</span>
+      {/* 🔹 Info */}
+      <div className="profile-info">
+        <h2>Meu perfil</h2>
+        <span>{tweets.length} Tweets</span>
 
-          {user.bio && (
-            <p className="profile-bio">{user.bio}</p>
-          )}
-        </div>
+        {user.bio && <p className="bio">{user.bio}</p>}
       </div>
 
       {/* 🔹 Tweets */}
@@ -90,20 +96,46 @@ export default function Profile() {
         <TweetCard key={tweet.id} tweet={tweet} />
       ))}
 
-      {/* 🔹 Modal de edição */}
+      {/* 🔹 MODAL */}
       {isEditing && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>Editar perfil</h3>
+  <div className="modal-overlay">
+    <div className="modal-twitter">
+      {/* Header */}
+      <div className="modal-header">
+        <button
+          className="close-btn"
+          onClick={() => setIsEditing(false)}
+        >
+          ✕
+        </button>
 
-            <p>(Modal funcionando 👍)</p>
+        <h3>Editar perfil</h3>
 
-            <button onClick={() => setIsEditing(false)}>
-              Fechar
-            </button>
-          </div>
-        </div>
-      )}
+        <button
+          className="save-btn"
+          onClick={handleSaveProfile}
+        >
+          Salvar
+        </button>
+      </div>
+
+      {/* Conteúdo */}
+      <div className="modal-body">
+        <label>Bio</label>
+        <textarea
+          value={editedBio}
+          onChange={(e) => setEditedBio(e.target.value)}
+          maxLength={160}
+          placeholder="Escreva sua bio"
+        />
+        <span className="char-count">
+          {editedBio.length}/160
+        </span>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
