@@ -25,12 +25,42 @@ export default function EditProfileModal({
   const [bio, setBio] = useState(user.bio ?? "");
   const [avatar, setAvatar] = useState(user.avatar ?? "");
   const [banner, setBanner] = useState(user.banner ?? "");
+  const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
-  function handleSave() {
-    onSave({ bio, avatar, banner });
-    onClose();
+  async function handleSave() {
+    setLoading(true);
+
+    try {
+      const res = await fetch("http://127.0.0.1:9000/api/me/", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          bio,
+          avatar,
+          banner,
+        }),
+      });
+
+      const data = await res.json();
+
+      // 🔁 Atualiza o Profile
+      onSave({
+        bio: data.bio ?? "",
+        avatar: data.avatar ?? "",
+        banner: data.banner ?? "",
+      });
+
+      onClose();
+    } catch  {
+      alert("Erro ao salvar perfil");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -72,8 +102,12 @@ export default function EditProfileModal({
         </div>
 
         <footer className="modal-footer">
-          <button className="save-btn" onClick={handleSave}>
-            Salvar
+          <button
+            className="save-btn"
+            onClick={handleSave}
+            disabled={loading}
+          >
+            {loading ? "Salvando..." : "Salvar"}
           </button>
         </footer>
       </div>
