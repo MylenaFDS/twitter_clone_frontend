@@ -20,29 +20,31 @@ export default function App() {
         />
 
         {/* 🔐 Rotas protegidas */}
-        {isAuthenticated ? (
-          <>
-            <Route
-              path="/"
-              element={
-                <Layout>
-                  <Feed />
-                </Layout>
-              }
-            />
+        <Route
+          path="/"
+          element={
+            isAuthenticated ? (
+              <Layout>
+                <Feed />
+              </Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
 
-            <Route
-              path="/profile"
-              element={
-                <Layout>
-                  <Profile />
-                </Layout>
-              }
-            />
-          </>
-        ) : (
-          <Route path="*" element={<Navigate to="/login" />} />
-        )}
+        <Route
+          path="/profile"
+          element={
+            isAuthenticated ? (
+              <Layout>
+                <Profile />
+              </Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

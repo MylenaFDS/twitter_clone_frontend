@@ -4,10 +4,10 @@ import TweetCard from "../components/TweetCard";
 import type { Tweet } from "../types/Tweet";
 import { getTweets } from "../services/tweets";
 import TopBar from "../components/TopBar";
+
 export default function Feed() {
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [loading, setLoading] = useState(true);
-
 
   useEffect(() => {
     async function loadTweets() {
@@ -29,22 +29,17 @@ export default function Feed() {
   }
 
   return (
-  <>
-  <TopBar />
-    <TweetBox onTweet={handleNewTweet} />
+    <>
+      <TopBar />
+      <TweetBox onTweet={handleNewTweet} />
 
-    {loading && (
-      <p style={{ color: "#71767b", padding: "16px" }}>
-        Carregando...
-      </p>
-    )}
+      {loading && <p style={{ color: "#71767b" }}>Carregando...</p>}
 
-    {tweets.map((tweet) => (
-      <TweetCard key={tweet.id} tweet={tweet} />
-    ))}
-  </>
-);
-
+      {tweets.map((tweet) => (
+        <TweetCard key={tweet.id} tweet={tweet} />
+      ))}
+    </>
+  );
 }
 
 
