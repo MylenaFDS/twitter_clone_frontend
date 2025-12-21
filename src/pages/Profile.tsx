@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import TweetCard from "../components/TweetCard";
 import EditProfileModal from "../components/EditProfileModal";
+import SkeletonTweet from "../components/SkeletonTweet";
 import type { Tweet } from "../types/Tweet";
 import "../styles/profile.css";
 
@@ -19,60 +20,68 @@ export default function Profile() {
   });
 
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
+
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    if (!token) return;
-
-    // 🔹 Dados do usuário
-    fetch("http://127.0.0.1:9000/api/me/", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        setUser({
-          bio: data.bio || "",
-          avatar: data.avatar || "",
-          banner: data.banner || "",
-        });
-      });
-
-    // 🔹 Tweets do usuário
-    fetch("http://127.0.0.1:9000/api/posts/?author=me", {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
-      .then((res) => res.json())
-      .then((data: Tweet[]) => setTweets(data));
-  }, [token]);
-
-  async function handleSaveProfile(updatedData: UserProfile) {
   if (!token) return;
 
-  const res = await fetch("http://127.0.0.1:9000/api/me/", {
-    method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-    },
-    body: JSON.stringify(updatedData),
-  });
+  async function loadProfile() {
+    setLoading(true);
 
-  if (!res.ok) {
-    throw new Error("Erro ao salvar perfil");
+    try {
+      const [userRes, tweetsRes] = await Promise.all([
+        fetch("http://127.0.0.1:9000/api/me/", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+        fetch("http://127.0.0.1:9000/api/posts/?author=me", {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ]);
+
+      const userData = await userRes.json();
+      const tweetsData = await tweetsRes.json();
+
+      setUser({
+        bio: userData.bio || "",
+        avatar: userData.avatar || "",
+        banner: userData.banner || "",
+      });
+
+      setTweets(tweetsData);
+    } finally {
+      setLoading(false);
+    }
   }
 
-  const data = await res.json();
-  setUser({
-    bio: data.bio,
-    avatar: data.avatar,
-    banner: data.banner,
-  });
-}
+  loadProfile();
+}, [token]);
 
+
+  async function handleSaveProfile(updatedData: UserProfile) {
+    if (!token) return;
+
+    const res = await fetch("http://127.0.0.1:9000/api/me/", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(updatedData),
+    });
+
+    if (!res.ok) {
+      throw new Error("Erro ao salvar perfil");
+    }
+
+    const data = await res.json();
+    setUser({
+      bio: data.bio,
+      avatar: data.avatar,
+      banner: data.banner,
+    });
+  }
 
   return (
     <div className="profile">
@@ -109,9 +118,16 @@ export default function Profile() {
       </div>
 
       {/* 🔹 Tweets */}
-      {tweets.map((tweet) => (
-        <TweetCard key={tweet.id} tweet={tweet} />
-      ))}
+      {loading ? (
+        <>
+          <SkeletonTweet />
+          <SkeletonTweet />
+        </>
+      ) : (
+        tweets.map((tweet) => (
+          <TweetCard key={tweet.id} tweet={tweet} />
+        ))
+      )}
 
       {/* 🔹 Modal de edição */}
       <EditProfileModal
