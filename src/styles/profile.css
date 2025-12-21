@@ -231,3 +231,40 @@
 .save-btn:hover {
   background: #1a8cd8;
 }
+
+.loading-text {
+  color: #71767b;
+  padding: 20px;
+}
+
+.empty-profile {
+  text-align: center;
+  padding: 40px 20px;
+  color: #71767b;
+}
+
+.empty-profile h3 {
+  color: #e7e9ea;
+  margin-bottom: 8px;
+}
+
+.profile-tabs {
+  display: flex;
+  border-bottom: 1px solid #2f3336;
+  margin-top: 16px;
+}
+
+.profile-tabs button {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: none;
+  color: #71767b;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.profile-tabs button.active {
+  color: #e7e9ea;
+  border-bottom: 2px solid #1d9bf0;
+}
