@@ -37,7 +37,7 @@ export default function Profile() {
       setLoading(true);
 
       try {
-        // 🔹 Dados do usuário (sempre iguais)
+        // 🔹 Dados do usuário
         const userRes = await fetch("http://127.0.0.1:9000/api/me/", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -50,7 +50,7 @@ export default function Profile() {
           banner: userData.banner || "",
         });
 
-        // 🔹 Tweets ou Curtidas (dependendo da aba)
+        // 🔹 Tweets ou Curtidas
         const postsUrl =
           activeTab === "tweets"
             ? "http://127.0.0.1:9000/api/posts/?author=me"
@@ -71,6 +71,13 @@ export default function Profile() {
 
     loadProfile();
   }, [token, activeTab]);
+
+  // ✅ REMOVE O TWEET DA ABA CURTIDAS AO DESLIKE
+  function handleUnlike(tweetId: number) {
+    if (activeTab === "likes") {
+      setTweets((prev) => prev.filter((tweet) => tweet.id !== tweetId));
+    }
+  }
 
   async function handleSaveProfile(updatedData: UserProfile) {
     if (!token) return;
@@ -168,7 +175,11 @@ export default function Profile() {
         </div>
       ) : (
         tweets.map((tweet) => (
-          <TweetCard key={tweet.id} tweet={tweet} />
+          <TweetCard
+            key={tweet.id}
+            tweet={tweet}
+            onUnlike={handleUnlike}
+          />
         ))
       )}
 
@@ -182,4 +193,5 @@ export default function Profile() {
     </div>
   );
 }
+
 

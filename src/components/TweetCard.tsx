@@ -5,6 +5,7 @@ import { toggleLike } from "../services/tweets";
 
 interface TweetProps {
   tweet: Tweet;
+  onUnlike?: (tweetId: number) => void;
 }
 
 // 🔹 Tempo relativo
@@ -19,7 +20,7 @@ function timeAgo(dateString: string) {
   return `${Math.floor(seconds / 86400)}d`;
 }
 
-export default function TweetCard({ tweet }: TweetProps) {
+export default function TweetCard({ tweet, onUnlike }: TweetProps) {
   const [liked, setLiked] = useState(tweet.liked);
   const [likesCount, setLikesCount] = useState(tweet.likes_count);
   const [loading, setLoading] = useState(false);
@@ -35,6 +36,11 @@ export default function TweetCard({ tweet }: TweetProps) {
       setLikesCount((prev) =>
         data.liked ? prev + 1 : prev - 1
       );
+
+      // ✅ Se estava curtido e agora foi descurtido
+      if (!data.liked && onUnlike) {
+        onUnlike(tweet.id);
+      }
     } catch {
       alert("Erro ao curtir post");
     } finally {
@@ -44,7 +50,7 @@ export default function TweetCard({ tweet }: TweetProps) {
 
   return (
     <article className="tweet">
-      {/* AVATAR SIMPLES */}
+      {/* AVATAR */}
       <div className="tweet-avatar">
         <div className="avatar-circle">
           {tweet.author.username[0].toUpperCase()}
@@ -67,7 +73,6 @@ export default function TweetCard({ tweet }: TweetProps) {
 
         <div className="tweet-actions">
           <button aria-label="Comentar">💬</button>
-
           <button aria-label="Retweetar">🔁</button>
 
           <button
