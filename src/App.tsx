@@ -6,7 +6,9 @@ import Profile from "./pages/Profile";
 import Layout from "./components/Layout";
 
 export default function App() {
-  const isAuthenticated = !!localStorage.getItem("token");
+  const token = localStorage.getItem("access");
+  const isAuthenticated = Boolean(token);
+
 
   return (
     <BrowserRouter>

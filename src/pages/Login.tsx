@@ -22,7 +22,8 @@ export default function Login() {
         password,
       });
 
-      localStorage.setItem("token", response.data.access);
+      localStorage.setItem("access", response.data.access);
+      localStorage.setItem("refresh", response.data.refresh);
       navigate("/");
     } catch {
       setError("Usuário ou senha inválidos");

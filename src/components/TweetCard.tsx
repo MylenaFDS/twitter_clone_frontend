@@ -1,5 +1,7 @@
+import { useState } from "react";
 import "../styles/tweet.css";
 import type { Tweet } from "../types/Tweet";
+import { toggleLike } from "../services/tweets";
 
 interface TweetProps {
   tweet: Tweet;
@@ -18,6 +20,28 @@ function timeAgo(dateString: string) {
 }
 
 export default function TweetCard({ tweet }: TweetProps) {
+  const [liked, setLiked] = useState(tweet.liked);
+  const [likesCount, setLikesCount] = useState(tweet.likes_count);
+  const [loading, setLoading] = useState(false);
+
+  async function handleLike() {
+    if (loading) return;
+
+    setLoading(true);
+    try {
+      const data = await toggleLike(tweet.id);
+
+      setLiked(data.liked);
+      setLikesCount((prev) =>
+        data.liked ? prev + 1 : prev - 1
+      );
+    } catch {
+      alert("Erro ao curtir post");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <article className="tweet">
       {/* AVATAR SIMPLES */}
@@ -43,10 +67,18 @@ export default function TweetCard({ tweet }: TweetProps) {
 
         <div className="tweet-actions">
           <button aria-label="Comentar">💬</button>
+
           <button aria-label="Retweetar">🔁</button>
-          <button aria-label="Curtir">
-            ❤️ {tweet.likes_count}
+
+          <button
+            aria-label="Curtir"
+            onClick={handleLike}
+            className={liked ? "liked" : ""}
+            disabled={loading}
+          >
+            ❤️ {likesCount}
           </button>
+
           <button aria-label="Compartilhar">📤</button>
         </div>
       </div>

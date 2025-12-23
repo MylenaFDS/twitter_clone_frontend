@@ -1,0 +1,35 @@
+.empty-feed {
+  text-align: center;
+  padding: 40px 20px;
+  color: #e7e9ea;
+}
+
+.empty-feed h2 {
+  font-size: 20px;
+  margin-bottom: 8px;
+}
+
+.empty-feed p {
+  font-size: 14px;
+  color: #71767b;
+  margin-bottom: 20px;
+}
+
+.empty-feed-actions {
+  display: flex;
+  justify-content: center;
+}
+
+.empty-btn {
+  background-color: #1d9bf0;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  font-weight: bold;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.empty-btn:hover {
+  background-color: #1a8cd8;
+}
