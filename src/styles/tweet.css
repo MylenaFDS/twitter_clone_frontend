@@ -91,3 +91,19 @@
   font-weight: 700;
   font-size: 18px;
 }
+
+.tweet-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.tweet-actions button.liked {
+  color: red;
+}
+
+.tweet-actions button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
