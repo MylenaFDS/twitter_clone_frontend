@@ -21,3 +21,8 @@ export async function toggleLike(postId: number) {
   const response = await api.post(`/posts/${postId}/like/`);
   return response.data;
 }
+
+export async function getLikedTweets() {
+  const response = await api.get("/posts/?liked=me");
+  return response.data;
+}

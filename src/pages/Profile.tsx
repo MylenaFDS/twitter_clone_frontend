@@ -28,42 +28,49 @@ export default function Profile() {
   const token = localStorage.getItem("access");
 
   useEffect(() => {
-  if (!token) {
-    setLoading(false);
-    return;
-  }
-
-  async function loadProfile() {
-    try {
-      const [userRes, tweetsRes] = await Promise.all([
-        fetch("http://127.0.0.1:9000/api/me/", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-        fetch("http://127.0.0.1:9000/api/posts/?author=me", {
-          headers: { Authorization: `Bearer ${token}` },
-        }),
-      ]);
-
-      const userData = await userRes.json();
-      const tweetsData = await tweetsRes.json();
-
-      setUser({
-        bio: userData.bio || "",
-        avatar: userData.avatar || "",
-        banner: userData.banner || "",
-      });
-
-      setTweets(tweetsData);
-    } catch (err) {
-      console.error("Erro ao carregar perfil", err);
-    } finally {
+    if (!token) {
       setLoading(false);
+      return;
     }
-  }
 
-  loadProfile();
-}, [token]);
+    async function loadProfile() {
+      setLoading(true);
 
+      try {
+        // 🔹 Dados do usuário (sempre iguais)
+        const userRes = await fetch("http://127.0.0.1:9000/api/me/", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const userData = await userRes.json();
+
+        setUser({
+          bio: userData.bio || "",
+          avatar: userData.avatar || "",
+          banner: userData.banner || "",
+        });
+
+        // 🔹 Tweets ou Curtidas (dependendo da aba)
+        const postsUrl =
+          activeTab === "tweets"
+            ? "http://127.0.0.1:9000/api/posts/?author=me"
+            : "http://127.0.0.1:9000/api/posts/?liked=me";
+
+        const postsRes = await fetch(postsUrl, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const postsData = await postsRes.json();
+        setTweets(postsData);
+      } catch (err) {
+        console.error("Erro ao carregar perfil", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadProfile();
+  }, [token, activeTab]);
 
   async function handleSaveProfile(updatedData: UserProfile) {
     if (!token) return;
@@ -139,28 +146,30 @@ export default function Profile() {
         </button>
       </div>
 
-      {/* 🔹 Conteúdo das abas */}
+      {/* 🔹 Conteúdo */}
       {loading ? (
         <>
           <SkeletonTweet />
           <SkeletonTweet />
         </>
-      ) : activeTab === "tweets" ? (
-        tweets.length === 0 ? (
-          <div className="empty-profile">
-            <h3>Você ainda não tweetou</h3>
-            <p>Quando você publicar algo, aparecerá aqui.</p>
-          </div>
-        ) : (
-          tweets.map((tweet) => (
-            <TweetCard key={tweet.id} tweet={tweet} />
-          ))
-        )
-      ) : (
+      ) : tweets.length === 0 ? (
         <div className="empty-profile">
-          <h3>Nenhuma curtida ainda</h3>
-          <p>Quando você curtir um tweet, ele aparecerá aqui.</p>
+          {activeTab === "tweets" ? (
+            <>
+              <h3>Você ainda não tweetou</h3>
+              <p>Quando você publicar algo, aparecerá aqui.</p>
+            </>
+          ) : (
+            <>
+              <h3>Nenhuma curtida ainda</h3>
+              <p>Quando você curtir um tweet, ele aparecerá aqui.</p>
+            </>
+          )}
         </div>
+      ) : (
+        tweets.map((tweet) => (
+          <TweetCard key={tweet.id} tweet={tweet} />
+        ))
       )}
 
       {/* 🔹 Modal de edição */}
