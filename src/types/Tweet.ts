@@ -8,5 +8,6 @@ export interface Tweet {
   created_at: string;
   likes_count: number;
   liked?: boolean;
+  comments_count: number;
 }
 

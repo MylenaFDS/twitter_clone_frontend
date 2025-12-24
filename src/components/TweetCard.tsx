@@ -79,11 +79,12 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
 
         <div className="tweet-actions">
           <button
-            aria-label="Comentar"
-            onClick={() => setShowComments((prev) => !prev)}
-          >
-            💬
-          </button>
+  aria-label="Comentar"
+  onClick={() => setShowComments((prev) => !prev)}
+>
+  💬 {tweet.comments_count}
+</button>
+
 
           <button aria-label="Retweetar">🔁</button>
 
