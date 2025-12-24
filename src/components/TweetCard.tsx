@@ -2,6 +2,8 @@ import { useState } from "react";
 import "../styles/tweet.css";
 import type { Tweet } from "../types/Tweet";
 import { toggleLike } from "../services/tweets";
+import CommentList from "./CommentList";
+import CommentForm from "./CommentForm";
 
 interface TweetProps {
   tweet: Tweet;
@@ -25,6 +27,10 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
   const [likesCount, setLikesCount] = useState(tweet.likes_count);
   const [loading, setLoading] = useState(false);
 
+  // 🔹 Comentários
+  const [showComments, setShowComments] = useState(false);
+  const [reloadComments, setReloadComments] = useState(false);
+
   async function handleLike() {
     if (loading) return;
 
@@ -37,7 +43,7 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
         data.liked ? prev + 1 : prev - 1
       );
 
-      // ✅ Se estava curtido e agora foi descurtido
+      // ✅ Remove da aba Curtidas ao descurtir
       if (!data.liked && onUnlike) {
         onUnlike(tweet.id);
       }
@@ -72,7 +78,13 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
         <p className="tweet-text">{tweet.content}</p>
 
         <div className="tweet-actions">
-          <button aria-label="Comentar">💬</button>
+          <button
+            aria-label="Comentar"
+            onClick={() => setShowComments((prev) => !prev)}
+          >
+            💬
+          </button>
+
           <button aria-label="Retweetar">🔁</button>
 
           <button
@@ -86,6 +98,23 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
 
           <button aria-label="Compartilhar">📤</button>
         </div>
+
+        {/* 🔹 Comentários */}
+        {showComments && (
+          <div className="tweet-comments">
+            <CommentForm
+              postId={tweet.id}
+              onNewComment={() =>
+                setReloadComments((prev) => !prev)
+              }
+            />
+
+            <CommentList
+              key={reloadComments.toString()}
+              postId={tweet.id}
+            />
+          </div>
+        )}
       </div>
     </article>
   );
