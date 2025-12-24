@@ -2,15 +2,13 @@ import { useState } from "react";
 import "../styles/tweet.css";
 import type { Tweet } from "../types/Tweet";
 import { toggleLike } from "../services/tweets";
-import CommentList from "./CommentList";
-import CommentForm from "./CommentForm";
+import Comments from "./Comments"; // 👈 vamos usar
 
 interface TweetProps {
   tweet: Tweet;
   onUnlike?: (tweetId: number) => void;
 }
 
-// 🔹 Tempo relativo
 function timeAgo(dateString: string) {
   const now = new Date();
   const date = new Date(dateString);
@@ -25,30 +23,22 @@ function timeAgo(dateString: string) {
 export default function TweetCard({ tweet, onUnlike }: TweetProps) {
   const [liked, setLiked] = useState(tweet.liked);
   const [likesCount, setLikesCount] = useState(tweet.likes_count);
-  const [loading, setLoading] = useState(false);
-
-  // 🔹 Comentários
+  const [commentsCount, setCommentsCount] = useState(tweet.comments_count); // ✅
   const [showComments, setShowComments] = useState(false);
-  const [reloadComments, setReloadComments] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   async function handleLike() {
     if (loading) return;
-
     setLoading(true);
+
     try {
       const data = await toggleLike(tweet.id);
-
       setLiked(data.liked);
-      setLikesCount((prev) =>
-        data.liked ? prev + 1 : prev - 1
-      );
+      setLikesCount((prev) => (data.liked ? prev + 1 : prev - 1));
 
-      // ✅ Remove da aba Curtidas ao descurtir
       if (!data.liked && onUnlike) {
         onUnlike(tweet.id);
       }
-    } catch {
-      alert("Erro ao curtir post");
     } finally {
       setLoading(false);
     }
@@ -56,35 +46,27 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
 
   return (
     <article className="tweet">
-      {/* AVATAR */}
       <div className="tweet-avatar">
         <div className="avatar-circle">
           {tweet.author.username[0].toUpperCase()}
         </div>
       </div>
 
-      {/* CONTEÚDO */}
       <div className="tweet-content">
         <div className="tweet-header">
-          <span className="tweet-name">
-            @{tweet.author.username}
-          </span>
-
-          <span className="tweet-time">
-            · {timeAgo(tweet.created_at)}
-          </span>
+          <span className="tweet-name">@{tweet.author.username}</span>
+          <span className="tweet-time">· {timeAgo(tweet.created_at)}</span>
         </div>
 
         <p className="tweet-text">{tweet.content}</p>
 
         <div className="tweet-actions">
           <button
-  aria-label="Comentar"
-  onClick={() => setShowComments((prev) => !prev)}
->
-  💬 {tweet.comments_count}
-</button>
-
+            aria-label="Comentar"
+            onClick={() => setShowComments((prev) => !prev)}
+          >
+            💬 {commentsCount}
+          </button>
 
           <button aria-label="Retweetar">🔁</button>
 
@@ -100,21 +82,14 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
           <button aria-label="Compartilhar">📤</button>
         </div>
 
-        {/* 🔹 Comentários */}
+        {/* 🔽 Comentários */}
         {showComments && (
-          <div className="tweet-comments">
-            <CommentForm
-              postId={tweet.id}
-              onNewComment={() =>
-                setReloadComments((prev) => !prev)
-              }
-            />
-
-            <CommentList
-              key={reloadComments.toString()}
-              postId={tweet.id}
-            />
-          </div>
+          <Comments
+            postId={tweet.id}
+            onCommentCreated={() =>
+              setCommentsCount((prev) => prev + 1)
+            }
+          />
         )}
       </div>
     </article>

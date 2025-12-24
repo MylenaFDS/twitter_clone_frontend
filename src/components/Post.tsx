@@ -1,5 +1,5 @@
 import React from "react";
-import Comment from "./Comment";
+import Comment from "./Comments";
 
 interface PostProps {
   id: number;
