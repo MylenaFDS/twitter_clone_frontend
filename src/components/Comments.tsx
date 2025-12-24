@@ -13,12 +13,19 @@ interface Comment {
 interface Props {
   postId: number;
   onCommentCreated: () => void;
+  onCommentDeleted: () => void;
 }
 
-export default function Comments({ postId, onCommentCreated }: Props) {
+export default function Comments({
+  postId,
+  onCommentCreated,
+  onCommentDeleted,
+}: Props) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [content, setContent] = useState("");
   const token = localStorage.getItem("access");
+
+  const currentUser = localStorage.getItem("username");
 
   useEffect(() => {
     fetch(`http://127.0.0.1:9000/api/comments/?post=${postId}`, {
@@ -38,17 +45,35 @@ export default function Comments({ postId, onCommentCreated }: Props) {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        content,
-        post: postId,
-      }),
+      body: JSON.stringify({ content, post: postId }),
     });
 
     const newComment = await res.json();
 
     setComments((prev) => [...prev, newComment]);
     setContent("");
-    onCommentCreated(); // ✅ AVISA O TWEET
+    onCommentCreated();
+  }
+
+  async function handleDelete(commentId: number) {
+    const confirmed = confirm("Deseja excluir este comentário?");
+    if (!confirmed) return;
+
+    await fetch(
+      `http://127.0.0.1:9000/api/comments/${commentId}/`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    setComments((prev) =>
+      prev.filter((comment) => comment.id !== commentId)
+    );
+
+    onCommentDeleted(); // 🔥 atualiza contador
   }
 
   return (
@@ -65,6 +90,16 @@ export default function Comments({ postId, onCommentCreated }: Props) {
         <div key={comment.id} className="comment">
           <strong>@{comment.author.username}</strong>
           <p>{comment.content}</p>
+
+          {/* 🗑️ só autor */}
+          {comment.author.username === currentUser && (
+            <button
+              className="delete-comment"
+              onClick={() => handleDelete(comment.id)}
+            >
+              🗑️
+            </button>
+          )}
         </div>
       ))}
     </div>

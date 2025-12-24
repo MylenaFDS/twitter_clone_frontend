@@ -24,6 +24,10 @@ export default function Login() {
 
       localStorage.setItem("access", response.data.access);
       localStorage.setItem("refresh", response.data.refresh);
+
+      // ✅ ESSENCIAL para comentários / botão deletar
+      localStorage.setItem("username", username);
+      
       navigate("/");
     } catch {
       setError("Usuário ou senha inválidos");

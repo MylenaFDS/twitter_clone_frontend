@@ -89,8 +89,11 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
             onCommentCreated={() =>
               setCommentsCount((prev) => prev + 1)
             }
-          />
-        )}
+            onCommentDeleted={() =>
+              setCommentsCount((prev) => prev - 1)
+            }
+            />
+          )}
       </div>
     </article>
   );
