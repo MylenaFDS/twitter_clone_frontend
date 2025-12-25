@@ -28,6 +28,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("access");
+  const API_BASE_URL = "http://127.0.0.1:9000";
 
   useEffect(() => {
     if (!token) {
@@ -39,7 +40,7 @@ export default function Profile() {
       setLoading(true);
 
       try {
-        // 🔹 Dados do usuário
+        // 🔹 Usuário
         const userRes = await fetch("http://127.0.0.1:9000/api/me/", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -84,17 +85,34 @@ export default function Profile() {
     }
   }
 
-  // 🔹 Atualiza dados do perfil
-  async function handleSaveProfile(updatedData: UserProfile) {
+  // 🔹 ATUALIZA PERFIL (bio + avatar + banner)
+  async function handleSaveProfile(updatedData: {
+    bio?: string;
+    avatar?: File | null;
+    banner?: File | null;
+  }) {
     if (!token) return;
+
+    const formData = new FormData();
+
+    if (updatedData.bio !== undefined) {
+      formData.append("bio", updatedData.bio);
+    }
+
+    if (updatedData.avatar) {
+      formData.append("avatar", updatedData.avatar);
+    }
+
+    if (updatedData.banner) {
+      formData.append("banner", updatedData.banner);
+    }
 
     const res = await fetch("http://127.0.0.1:9000/api/me/", {
       method: "PATCH",
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${token}`, // ❗ NÃO definir Content-Type
       },
-      body: JSON.stringify(updatedData),
+      body: formData,
     });
 
     if (!res.ok) {
@@ -104,13 +122,13 @@ export default function Profile() {
     const data = await res.json();
     setUser({
       username: data.username,
-      bio: data.bio,
-      avatar: data.avatar,
-      banner: data.banner,
+      bio: data.bio || "",
+      avatar: data.avatar || "",
+      banner: data.banner || "",
     });
   }
 
-  // 🔹 Alterar senha
+  // 🔹 ALTERAR SENHA
   async function handleChangePassword(data: {
     old_password: string;
     new_password: string;
@@ -140,20 +158,24 @@ export default function Profile() {
       <div
         className="profile-banner"
         style={{
-          backgroundImage: user.banner
-            ? `url(${user.banner})`
-            : undefined,
-        }}
+  backgroundImage: user.banner
+    ? `url(${API_BASE_URL}${user.banner})`
+    : undefined,
+}}
+
       />
 
       {/* 🔹 Avatar + botão */}
       <div className="profile-top">
         <img
-          className="profile-avatar"
-          src={user.avatar || "https://via.placeholder.com/120"}
-          alt="Avatar"
-        />
-
+  className="profile-avatar"
+  src={
+    user.avatar
+      ? `${API_BASE_URL}${user.avatar}`
+      : "https://via.placeholder.com/120"
+  }
+  alt="Avatar"
+/>
         <button
           className="edit-profile-btn"
           onClick={() => setIsEditing(true)}
@@ -216,7 +238,7 @@ export default function Profile() {
         ))
       )}
 
-      {/* 🔹 Modal de edição */}
+      {/* 🔹 Modal */}
       <EditProfileModal
         isOpen={isEditing}
         onClose={() => setIsEditing(false)}
@@ -227,6 +249,3 @@ export default function Profile() {
     </div>
   );
 }
-
-
-

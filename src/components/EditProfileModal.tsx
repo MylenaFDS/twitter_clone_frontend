@@ -5,18 +5,15 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   user: {
-    username: string;
-    bio?: string;
-    avatar?: string;
-    banner?: string;
-  };
-  onSaveProfile: (data: {
-    username: string;
     bio: string;
     avatar: string;
     banner: string;
+  };
+  onSaveProfile: (data: {
+    bio?: string;
+    avatar?: File | null;
+    banner?: File | null;
   }) => Promise<void>;
-
   onChangePassword: (data: {
     old_password: string;
     new_password: string;
@@ -30,37 +27,40 @@ export default function EditProfileModal({
   onSaveProfile,
   onChangePassword,
 }: Props) {
-  const [username, setUsername] = useState(user.username);
-  const [bio, setBio] = useState(user.bio ?? "");
-  const [avatar, setAvatar] = useState(user.avatar ?? "");
-  const [banner, setBanner] = useState(user.banner ?? "");
+  const [bio, setBio] = useState(user.bio);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+
+  const [avatarPreview, setAvatarPreview] = useState(user.avatar);
+  const [bannerPreview, setBannerPreview] = useState(user.banner);
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [loading, setLoading] = useState(false);
 
   if (!isOpen) return null;
 
-  async function handleSave() {
-    if (newPassword && newPassword !== confirmPassword) {
-      alert("As senhas não coincidem");
-      return;
-    }
+  function handleAvatarChange(file: File) {
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  }
 
+  function handleBannerChange(file: File) {
+    setBannerFile(file);
+    setBannerPreview(URL.createObjectURL(file));
+  }
+
+  async function handleSave() {
     setLoading(true);
     try {
-      // 🔹 Atualiza perfil
       await onSaveProfile({
-        username,
         bio,
-        avatar,
-        banner,
+        avatar: avatarFile,
+        banner: bannerFile,
       });
 
-      // 🔹 Atualiza senha (se preenchida)
-      if (newPassword) {
+      if (oldPassword && newPassword) {
         await onChangePassword({
           old_password: oldPassword,
           new_password: newPassword,
@@ -84,30 +84,37 @@ export default function EditProfileModal({
         </header>
 
         <div className="modal-content">
+          {/* Banner */}
           <label>
-            Nome de usuário
+            Banner
+            {bannerPreview && (
+              <img src={bannerPreview} className="banner-preview" />
+            )}
             <input
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                e.target.files && handleBannerChange(e.target.files[0])
+              }
             />
           </label>
 
+          {/* Avatar */}
           <label>
-            Banner (URL)
+            Avatar
+            {avatarPreview && (
+              <img src={avatarPreview} className="avatar-preview" />
+            )}
             <input
-              value={banner}
-              onChange={(e) => setBanner(e.target.value)}
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                e.target.files && handleAvatarChange(e.target.files[0])
+              }
             />
           </label>
 
-          <label>
-            Avatar (URL)
-            <input
-              value={avatar}
-              onChange={(e) => setAvatar(e.target.value)}
-            />
-          </label>
-
+          {/* Bio */}
           <label>
             Bio
             <textarea
@@ -118,10 +125,7 @@ export default function EditProfileModal({
             <span className="char-count">{bio.length}/160</span>
           </label>
 
-          <hr />
-
-          <h4>Alterar senha</h4>
-
+          {/* Senha */}
           <label>
             Senha atual
             <input
@@ -139,23 +143,19 @@ export default function EditProfileModal({
               onChange={(e) => setNewPassword(e.target.value)}
             />
           </label>
-
-          <label>
-            Confirmar nova senha
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-            />
-          </label>
         </div>
 
         <footer className="modal-footer">
-          <button onClick={handleSave} disabled={loading}>
-            {loading ? "Salvando..." : "Salvar alterações"}
+          <button
+            className="save-btn"
+            onClick={handleSave}
+            disabled={loading}
+          >
+            {loading ? "Salvando..." : "Salvar"}
           </button>
         </footer>
       </div>
     </div>
   );
 }
+
