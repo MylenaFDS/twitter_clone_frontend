@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
-
-interface Comment {
-  id: number;
-  content: string;
-  created_at: string;
-  author: {
-    id: number;
-    username: string;
-  };
-}
+import CommentForm from "./CommentForm";
+import CommentList from "./CommentList";
+import {
+  getComments,
+  createComment,
+  deleteComment,
+  updateComment,
+} from "../services/comments";
+import type { Comment } from "../types/Comment";
 
 interface Props {
   postId: number;
-  onCommentCreated: () => void;
-  onCommentDeleted: () => void;
+  onCommentCreated?: () => void;
+  onCommentDeleted?: () => void;
 }
 
 export default function Comments({
@@ -22,86 +21,59 @@ export default function Comments({
   onCommentDeleted,
 }: Props) {
   const [comments, setComments] = useState<Comment[]>([]);
-  const [content, setContent] = useState("");
-  const token = localStorage.getItem("access");
+  const [loading, setLoading] = useState(true);
 
   const currentUser = localStorage.getItem("username");
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:9000/api/comments/?post=${postId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then(setComments);
-  }, [postId, token]);
+    async function loadComments() {
+      setLoading(true);
+      try {
+        const data = await getComments(postId);
+        setComments(data);
+      } finally {
+        setLoading(false);
+      }
+    }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!content.trim()) return;
+    loadComments();
+  }, [postId]);
 
-    const res = await fetch("http://127.0.0.1:9000/api/comments/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ content, post: postId }),
-    });
-
-    const newComment = await res.json();
-
+  async function handleCreate(content: string) {
+    const newComment = await createComment(postId, content);
     setComments((prev) => [...prev, newComment]);
-    setContent("");
-    onCommentCreated();
+    onCommentCreated?.();
   }
 
   async function handleDelete(commentId: number) {
-    const confirmed = confirm("Deseja excluir este comentário?");
-    if (!confirmed) return;
-
-    await fetch(
-      `http://127.0.0.1:9000/api/comments/${commentId}/`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
+    await deleteComment(commentId);
     setComments((prev) =>
       prev.filter((comment) => comment.id !== commentId)
     );
-
-    onCommentDeleted(); // 🔥 atualiza contador
+    onCommentDeleted?.();
   }
+
+  async function handleEdit(commentId: number, content: string) {
+    const updated = await updateComment(commentId, content);
+    setComments((prev) =>
+      prev.map((comment) =>
+        comment.id === commentId ? updated : comment
+      )
+    );
+  }
+
+  if (loading) return <p className="comments-loading">Carregando comentários...</p>;
 
   return (
     <div className="comments">
-      <form onSubmit={handleSubmit}>
-        <input
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Tweetar resposta"
-        />
-      </form>
+      <CommentForm onSubmit={handleCreate} />
 
-      {comments.map((comment) => (
-        <div key={comment.id} className="comment">
-          <strong>@{comment.author.username}</strong>
-          <p>{comment.content}</p>
-
-          {/* 🗑️ só autor */}
-          {comment.author.username === currentUser && (
-            <button
-              className="delete-comment"
-              onClick={() => handleDelete(comment.id)}
-            >
-              🗑️
-            </button>
-          )}
-        </div>
-      ))}
+      <CommentList
+        comments={comments}
+        currentUser={currentUser}
+        onDelete={handleDelete}
+        onEdit={handleEdit}
+      />
     </div>
   );
 }

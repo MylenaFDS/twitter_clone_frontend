@@ -1,29 +1,18 @@
 import { useState } from "react";
-import { createComment } from "../services/comments";
 
 interface Props {
-  postId: number;
-  onNewComment: () => void;
+  onSubmit: (content: string) => void;
 }
 
-export default function CommentForm({ postId, onNewComment }: Props) {
+export default function CommentForm({ onSubmit }: Props) {
   const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!content.trim()) return;
 
-    setLoading(true);
-    try {
-      await createComment(postId, content);
-      setContent("");
-      onNewComment();
-    } catch {
-      alert("Erro ao comentar");
-    } finally {
-      setLoading(false);
-    }
+    onSubmit(content);
+    setContent("");
   }
 
   return (
@@ -32,9 +21,9 @@ export default function CommentForm({ postId, onNewComment }: Props) {
         value={content}
         onChange={(e) => setContent(e.target.value)}
         placeholder="Escreva um comentário"
-        disabled={loading}
       />
-      <button disabled={loading}>Comentar</button>
+      <button>Comentar</button>
     </form>
   );
 }
+

@@ -18,3 +18,19 @@ export async function createComment(
   });
   return res.data;
 }
+
+// 🔹 Deletar comentário
+export async function deleteComment(commentId: number): Promise<void> {
+  await api.delete(`/comments/${commentId}/`);
+}
+
+// 🔹 Atualizar comentário
+export async function updateComment(
+  commentId: number,
+  content: string
+): Promise<Comment> {
+  const res = await api.patch(`/comments/${commentId}/`, {
+    content,
+  });
+  return res.data;
+}

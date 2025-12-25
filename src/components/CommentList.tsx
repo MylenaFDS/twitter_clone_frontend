@@ -1,44 +1,32 @@
-import { useEffect, useState } from "react";
-import { getComments } from "../services/comments";
+import CommentItem from "./CommentItem";
 import type { Comment } from "../types/Comment";
-import "../styles/comments.css";
 
 interface Props {
-  postId: number;
+  comments: Comment[];
+  currentUser: string | null;
+  onDelete: (id: number) => void;
+  onEdit: (id: number, content: string) => void;
 }
 
-export default function CommentList({ postId }: Props) {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function load() {
-      setLoading(true);
-      try {
-        const data = await getComments(postId);
-        setComments(data);
-      } catch {
-        alert("Erro ao carregar comentários");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    load();
-  }, [postId]);
-
-  if (loading) return <p className="comments-loading">Carregando...</p>;
-
+export default function CommentList({
+  comments,
+  currentUser,
+  onDelete,
+  onEdit,
+}: Props) {
   if (comments.length === 0)
-    return <p className="comments-empty">Nenhum comentário ainda</p>;
+    return <p>Nenhum comentário ainda</p>;
 
   return (
-    <div className="comments">
+    <div className="comments-list">
       {comments.map((comment) => (
-        <div key={comment.id} className="comment">
-          <strong>@{comment.author.username}</strong>
-          <p>{comment.content}</p>
-        </div>
+        <CommentItem
+          key={comment.id}
+          comment={comment}
+          currentUser={currentUser}
+          onDelete={onDelete}
+          onEdit={onEdit}
+        />
       ))}
     </div>
   );
