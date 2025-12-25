@@ -6,6 +6,7 @@ import type { Tweet } from "../types/Tweet";
 import "../styles/profile.css";
 
 interface UserProfile {
+  username: string;
   bio: string;
   avatar: string;
   banner: string;
@@ -16,6 +17,7 @@ type Tab = "tweets" | "likes";
 export default function Profile() {
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [user, setUser] = useState<UserProfile>({
+    username: "",
     bio: "",
     avatar: "",
     banner: "",
@@ -45,6 +47,7 @@ export default function Profile() {
         const userData = await userRes.json();
 
         setUser({
+          username: userData.username,
           bio: userData.bio || "",
           avatar: userData.avatar || "",
           banner: userData.banner || "",
@@ -72,13 +75,16 @@ export default function Profile() {
     loadProfile();
   }, [token, activeTab]);
 
-  // ✅ REMOVE O TWEET DA ABA CURTIDAS AO DESLIKE
+  // ✅ Remove tweet da aba Curtidas ao descurtir
   function handleUnlike(tweetId: number) {
     if (activeTab === "likes") {
-      setTweets((prev) => prev.filter((tweet) => tweet.id !== tweetId));
+      setTweets((prev) =>
+        prev.filter((tweet) => tweet.id !== tweetId)
+      );
     }
   }
 
+  // 🔹 Atualiza dados do perfil
   async function handleSaveProfile(updatedData: UserProfile) {
     if (!token) return;
 
@@ -97,10 +103,35 @@ export default function Profile() {
 
     const data = await res.json();
     setUser({
+      username: data.username,
       bio: data.bio,
       avatar: data.avatar,
       banner: data.banner,
     });
+  }
+
+  // 🔹 Alterar senha
+  async function handleChangePassword(data: {
+    old_password: string;
+    new_password: string;
+  }) {
+    if (!token) return;
+
+    const res = await fetch(
+      "http://127.0.0.1:9000/api/change-password/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(data),
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("Erro ao alterar senha");
+    }
   }
 
   return (
@@ -109,7 +140,9 @@ export default function Profile() {
       <div
         className="profile-banner"
         style={{
-          backgroundImage: user.banner ? `url(${user.banner})` : undefined,
+          backgroundImage: user.banner
+            ? `url(${user.banner})`
+            : undefined,
         }}
       />
 
@@ -131,7 +164,7 @@ export default function Profile() {
 
       {/* 🔹 Info */}
       <div className="profile-info">
-        <h2>Meu perfil</h2>
+        <h2>@{user.username}</h2>
         <span>{tweets.length} Tweets</span>
         {user.bio && <p className="bio">{user.bio}</p>}
       </div>
@@ -188,10 +221,12 @@ export default function Profile() {
         isOpen={isEditing}
         onClose={() => setIsEditing(false)}
         user={user}
-        onSave={handleSaveProfile}
+        onSaveProfile={handleSaveProfile}
+        onChangePassword={handleChangePassword}
       />
     </div>
   );
 }
+
 
 

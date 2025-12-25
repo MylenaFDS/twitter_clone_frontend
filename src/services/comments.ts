@@ -25,12 +25,14 @@ export async function deleteComment(commentId: number): Promise<void> {
 }
 
 // 🔹 Atualizar comentário
+// 🔹 Atualizar comentário
 export async function updateComment(
   commentId: number,
   content: string
-): Promise<Comment> {
+) {
   const res = await api.patch(`/comments/${commentId}/`, {
     content,
   });
   return res.data;
 }
+
