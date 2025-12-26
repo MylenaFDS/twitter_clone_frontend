@@ -156,9 +156,9 @@ export default function EditProfileModal({
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              maxLength={160}
+              maxLength={500}
             />
-            <span className="char-count">{bio.length}/160</span>
+            <span className="char-count">{bio.length}/500</span>
           </label>
 
           {/* Senha */}
