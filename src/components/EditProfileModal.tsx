@@ -1,5 +1,7 @@
 import { useState } from "react";
 import "../styles/edit-profile-modal.css";
+import { showSuccess, showError } from "../utils/toast";
+import { TOAST_MESSAGES } from "../utils/toastMessages";
 
 
 type Props = {
@@ -60,44 +62,29 @@ export default function EditProfileModal({
     setLoading(true);
 
     try {
-      // 🔹 Salva perfil
-      await onSaveProfile({
-        username,
-        bio,
-        avatar: avatarFile,
-        banner: bannerFile,
-      });
+  await onSaveProfile({
+    username,
+    bio,
+    avatar: avatarFile,
+    banner: bannerFile,
+  });
 
-      // 🔐 Validação de senha
-      if ((oldPassword && !newPassword) || (!oldPassword && newPassword)) {
-        alert("Preencha a senha atual e a nova senha.");
-        setLoading(false);
-        return;
-      }
+  showSuccess(TOAST_MESSAGES.profile.updateSuccess);
 
-      // 🔐 Troca de senha
-      if (oldPassword && newPassword) {
-        await onChangePassword({
-          old_password: oldPassword,
-          new_password: newPassword,
-        });
+  if (oldPassword && newPassword) {
+    await onChangePassword({
+      old_password: oldPassword,
+      new_password: newPassword,
+    });
 
-        alert ("Senha alterada com sucesso. Faça login novamente.");
+    showSuccess(TOAST_MESSAGES.password.changeSuccess);
+  }
 
-        // 🚪 LOGOUT OBRIGATÓRIO
-        localStorage.removeItem("access");
-        localStorage.removeItem("refresh");
+  onClose();
+} catch {
+  showError(TOAST_MESSAGES.profile.updateError);
+}
 
-        window.location.href = "/login";
-        return;
-      }
-
-      onClose();
-    } catch  {
-      alert("Erro ao salvar perfil");
-    } finally {
-      setLoading(false);
-    }
   }
 
   return (

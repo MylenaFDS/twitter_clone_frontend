@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { AxiosError} from "axios";
 import TweetBox from "../components/TweetBox";
 import TweetCard from "../components/TweetCard";
 import SkeletonTweet from "../components/SkeletonTweet";
@@ -6,28 +7,34 @@ import EmptyFeed from "../components/EmptyFeed";
 import type { Tweet } from "../types/Tweet";
 import { getTweets } from "../services/tweets";
 import TopBar from "../components/TopBar";
-import { toast } from "react-toastify";
+
+import { showError } from "../utils/toast";
+import { TOAST_MESSAGES } from "../utils/toastMessages";
 
 export default function Feed() {
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  async function loadTweets() {
-    try {
-      const data = await getTweets();
-      setTweets(data ?? []);
-    } catch (error) {
-      console.error(error);
-      toast.error("Erro ao carregar feed");
-    } finally {
-      setLoading(false);
+    async function loadTweets() {
+      try {
+        const data = await getTweets();
+        setTweets(data ?? []);
+      } catch (error: unknown) {
+        // 🔐 Token inválido / expirado
+        if (error instanceof AxiosError){
+        if (error?.response?.status === 401) {
+          showError(TOAST_MESSAGES.feed.unauthorized);
+        } else {
+          showError(TOAST_MESSAGES.feed.loadError);
+        }}
+      } finally {
+        setLoading(false);
+      }
     }
-  }
 
-  loadTweets();
-}, []);
-
+    loadTweets();
+  }, []);
 
   function handleNewTweet(tweet: Tweet) {
     setTweets((prev) => [tweet, ...prev]);
