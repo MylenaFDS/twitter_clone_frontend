@@ -2,6 +2,7 @@ import { useState } from "react";
 import "../styles/tweetbox.css";
 import type { Tweet } from "../types/Tweet";
 import { createTweet } from "../services/tweets";
+import { toast } from "react-toastify";
 
 interface Props {
   onTweet: (tweet: Tweet) => void;
@@ -21,7 +22,7 @@ export default function TweetBox({ onTweet }: Props) {
       onTweet(newTweet);
       setContent("");
     } catch {
-      alert("Erro ao publicar tweet");
+      toast.error("Erro ao publicar tweet");
     } finally {
       setLoading(false);
     }

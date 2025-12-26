@@ -4,7 +4,7 @@ import EditProfileModal from "../components/EditProfileModal";
 import SkeletonTweet from "../components/SkeletonTweet";
 import type { Tweet } from "../types/Tweet";
 import "../styles/profile.css";
-
+import { toast } from "react-toastify";
 interface UserProfile {
   username: string;
   bio: string;
@@ -66,8 +66,8 @@ export default function Profile() {
 
         const postsData = await postsRes.json();
         setTweets(postsData);
-      } catch (err) {
-        console.error("Erro ao carregar perfil", err);
+      } catch {
+        toast.error("Erro ao carregar perfil");
       } finally {
         setLoading(false);
       }

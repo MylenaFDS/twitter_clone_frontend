@@ -6,6 +6,7 @@ import EmptyFeed from "../components/EmptyFeed";
 import type { Tweet } from "../types/Tweet";
 import { getTweets } from "../services/tweets";
 import TopBar from "../components/TopBar";
+import { toast } from "react-toastify";
 
 export default function Feed() {
   const [tweets, setTweets] = useState<Tweet[]>([]);
@@ -18,7 +19,7 @@ export default function Feed() {
       setTweets(data ?? []);
     } catch (error) {
       console.error(error);
-      alert("Erro ao carregar feed");
+      toast.error("Erro ao carregar feed");
     } finally {
       setLoading(false);
     }

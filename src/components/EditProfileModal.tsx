@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "../styles/edit-profile-modal.css";
 
+
 type Props = {
   isOpen: boolean;
   onClose: () => void;
@@ -81,7 +82,7 @@ export default function EditProfileModal({
           new_password: newPassword,
         });
 
-        alert("Senha alterada com sucesso. Faça login novamente.");
+        alert ("Senha alterada com sucesso. Faça login novamente.");
 
         // 🚪 LOGOUT OBRIGATÓRIO
         localStorage.removeItem("access");
