@@ -5,11 +5,13 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
   user: {
+    username: string;
     bio: string;
     avatar: string;
     banner: string;
   };
   onSaveProfile: (data: {
+    username?: string;
     bio?: string;
     avatar?: File | null;
     banner?: File | null;
@@ -27,7 +29,9 @@ export default function EditProfileModal({
   onSaveProfile,
   onChangePassword,
 }: Props) {
+  const [username, setUsername] = useState(user.username);
   const [bio, setBio] = useState(user.bio);
+
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
 
@@ -53,22 +57,42 @@ export default function EditProfileModal({
 
   async function handleSave() {
     setLoading(true);
+
     try {
+      // 🔹 Salva perfil
       await onSaveProfile({
+        username,
         bio,
         avatar: avatarFile,
         banner: bannerFile,
       });
 
+      // 🔐 Validação de senha
+      if ((oldPassword && !newPassword) || (!oldPassword && newPassword)) {
+        alert("Preencha a senha atual e a nova senha.");
+        setLoading(false);
+        return;
+      }
+
+      // 🔐 Troca de senha
       if (oldPassword && newPassword) {
         await onChangePassword({
           old_password: oldPassword,
           new_password: newPassword,
         });
+
+        alert("Senha alterada com sucesso. Faça login novamente.");
+
+        // 🚪 LOGOUT OBRIGATÓRIO
+        localStorage.removeItem("access");
+        localStorage.removeItem("refresh");
+
+        window.location.href = "/login";
+        return;
       }
 
       onClose();
-    } catch {
+    } catch  {
       alert("Erro ao salvar perfil");
     } finally {
       setLoading(false);
@@ -111,6 +135,18 @@ export default function EditProfileModal({
               onChange={(e) =>
                 e.target.files && handleAvatarChange(e.target.files[0])
               }
+            />
+          </label>
+
+          {/* Username */}
+          <label>
+            Nome de usuário
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              minLength={3}
+              maxLength={30}
             />
           </label>
 
@@ -158,4 +194,5 @@ export default function EditProfileModal({
     </div>
   );
 }
+
 

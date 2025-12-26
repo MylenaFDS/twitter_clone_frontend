@@ -86,47 +86,50 @@ export default function Profile() {
   }
 
   // 🔹 ATUALIZA PERFIL (bio + avatar + banner)
-  async function handleSaveProfile(updatedData: {
-    bio?: string;
-    avatar?: File | null;
-    banner?: File | null;
-  }) {
-    if (!token) return;
+ async function handleSaveProfile(updatedData: {
+  username?: string;
+  bio?: string;
+  avatar?: File | null;
+  banner?: File | null;
+}) {
+  if (!token) return;
 
-    const formData = new FormData();
+  const formData = new FormData();
 
-    if (updatedData.bio !== undefined) {
-      formData.append("bio", updatedData.bio);
-    }
+  if (updatedData.username)
+    formData.append("username", updatedData.username);
 
-    if (updatedData.avatar) {
-      formData.append("avatar", updatedData.avatar);
-    }
+  if (updatedData.bio)
+    formData.append("bio", updatedData.bio);
 
-    if (updatedData.banner) {
-      formData.append("banner", updatedData.banner);
-    }
+  if (updatedData.avatar)
+    formData.append("avatar", updatedData.avatar);
 
-    const res = await fetch("http://127.0.0.1:9000/api/me/", {
-      method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`, // ❗ NÃO definir Content-Type
-      },
-      body: formData,
-    });
+  if (updatedData.banner)
+    formData.append("banner", updatedData.banner);
 
-    if (!res.ok) {
-      throw new Error("Erro ao salvar perfil");
-    }
+  const res = await fetch("http://127.0.0.1:9000/api/me/", {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+    body: formData,
+  });
 
-    const data = await res.json();
-    setUser({
-      username: data.username,
-      bio: data.bio || "",
-      avatar: data.avatar || "",
-      banner: data.banner || "",
-    });
+  if (!res.ok) {
+    throw new Error("Erro ao salvar perfil");
   }
+
+  const data = await res.json();
+
+  setUser({
+    username: data.username,
+    bio: data.bio || "",
+    avatar: data.avatar || "",
+    banner: data.banner || "",
+  });
+}
+
 
   // 🔹 ALTERAR SENHA
   async function handleChangePassword(data: {
