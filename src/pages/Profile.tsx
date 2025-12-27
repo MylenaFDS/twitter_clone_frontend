@@ -4,7 +4,10 @@ import EditProfileModal from "../components/EditProfileModal";
 import SkeletonTweet from "../components/SkeletonTweet";
 import type { Tweet } from "../types/Tweet";
 import "../styles/profile.css";
-import { toast } from "react-toastify";
+import { showError } from "../utils/toast";
+import { TOAST_MESSAGES } from "../utils/toastMessages";
+import { AxiosError } from "axios";
+
 interface UserProfile {
   username: string;
   bio: string;
@@ -13,6 +16,13 @@ interface UserProfile {
 }
 
 type Tab = "tweets" | "likes";
+
+const API_BASE_URL = "http://127.0.0.1:9000";
+
+function resolveMediaUrl(url?: string) {
+  if (!url) return "";
+  return url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
+}
 
 export default function Profile() {
   const [tweets, setTweets] = useState<Tweet[]>([]);
@@ -28,7 +38,6 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("access");
-  const API_BASE_URL = "http://127.0.0.1:9000";
 
   useEffect(() => {
     if (!token) {
@@ -40,8 +49,8 @@ export default function Profile() {
       setLoading(true);
 
       try {
-        // 🔹 Usuário
-        const userRes = await fetch("http://127.0.0.1:9000/api/me/", {
+        // 🔹 Perfil do usuário
+        const userRes = await fetch(`${API_BASE_URL}/api/me/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -54,11 +63,11 @@ export default function Profile() {
           banner: userData.banner || "",
         });
 
-        // 🔹 Tweets ou Curtidas
+        // 🔹 Tweets / Curtidas
         const postsUrl =
           activeTab === "tweets"
-            ? "http://127.0.0.1:9000/api/posts/?author=me"
-            : "http://127.0.0.1:9000/api/posts/?liked=me";
+            ? `${API_BASE_URL}/api/posts/?author=me`
+            : `${API_BASE_URL}/api/posts/?liked=me`;
 
         const postsRes = await fetch(postsUrl, {
           headers: { Authorization: `Bearer ${token}` },
@@ -66,8 +75,12 @@ export default function Profile() {
 
         const postsData = await postsRes.json();
         setTweets(postsData);
-      } catch {
-        toast.error("Erro ao carregar perfil");
+      } catch (error: unknown) {
+        if (error instanceof AxiosError) {
+          if (error.response?.status === 401) {
+            showError(TOAST_MESSAGES.profile.updateError);
+          }
+        }
       } finally {
         setLoading(false);
       }
@@ -79,76 +92,63 @@ export default function Profile() {
   // ✅ Remove tweet da aba Curtidas ao descurtir
   function handleUnlike(tweetId: number) {
     if (activeTab === "likes") {
-      setTweets((prev) =>
-        prev.filter((tweet) => tweet.id !== tweetId)
-      );
+      setTweets((prev) => prev.filter((tweet) => tweet.id !== tweetId));
     }
   }
 
-  // 🔹 ATUALIZA PERFIL (bio + avatar + banner)
- async function handleSaveProfile(updatedData: {
-  username?: string;
-  bio?: string;
-  avatar?: File | null;
-  banner?: File | null;
-}) {
-  if (!token) return;
+  // 🔹 Atualizar perfil
+  async function handleSaveProfile(updatedData: {
+    username?: string;
+    bio?: string;
+    avatar?: File | null;
+    banner?: File | null;
+  }) {
+    if (!token) return;
 
-  const formData = new FormData();
+    const formData = new FormData();
 
-  if (updatedData.username)
-    formData.append("username", updatedData.username);
+    if (updatedData.username) formData.append("username", updatedData.username);
+    if (updatedData.bio) formData.append("bio", updatedData.bio);
+    if (updatedData.avatar) formData.append("avatar", updatedData.avatar);
+    if (updatedData.banner) formData.append("banner", updatedData.banner);
 
-  if (updatedData.bio)
-    formData.append("bio", updatedData.bio);
+    const res = await fetch(`${API_BASE_URL}/api/me/`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
 
-  if (updatedData.avatar)
-    formData.append("avatar", updatedData.avatar);
+    if (!res.ok) {
+      throw new Error("Erro ao salvar perfil");
+    }
 
-  if (updatedData.banner)
-    formData.append("banner", updatedData.banner);
+    const data = await res.json();
 
-  const res = await fetch("http://127.0.0.1:9000/api/me/", {
-    method: "PATCH",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
-
-  if (!res.ok) {
-    throw new Error("Erro ao salvar perfil");
+    setUser({
+      username: data.username,
+      bio: data.bio || "",
+      avatar: data.avatar || "",
+      banner: data.banner || "",
+    });
   }
 
-  const data = await res.json();
-
-  setUser({
-    username: data.username,
-    bio: data.bio || "",
-    avatar: data.avatar || "",
-    banner: data.banner || "",
-  });
-}
-
-
-  // 🔹 ALTERAR SENHA
+  // 🔹 Alterar senha
   async function handleChangePassword(data: {
     old_password: string;
     new_password: string;
   }) {
     if (!token) return;
 
-    const res = await fetch(
-      "http://127.0.0.1:9000/api/change-password/",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(data),
-      }
-    );
+    const res = await fetch(`${API_BASE_URL}/api/change-password/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(data),
+    });
 
     if (!res.ok) {
       throw new Error("Erro ao alterar senha");
@@ -161,24 +161,24 @@ export default function Profile() {
       <div
         className="profile-banner"
         style={{
-  backgroundImage: user.banner
-    ? `url(${API_BASE_URL}${user.banner})`
-    : undefined,
-}}
-
+          backgroundImage: user.banner
+            ? `url(${resolveMediaUrl(user.banner)})`
+            : undefined,
+        }}
       />
 
-      {/* 🔹 Avatar + botão */}
+      {/* 🔹 Avatar */}
       <div className="profile-top">
         <img
-  className="profile-avatar"
-  src={
-    user.avatar
-      ? `${API_BASE_URL}${user.avatar}`
-      : "https://via.placeholder.com/120"
-  }
-  alt="Avatar"
-/>
+          className="profile-avatar"
+          src={
+            user.avatar
+              ? resolveMediaUrl(user.avatar)
+              : "https://via.placeholder.com/120"
+          }
+          alt="Avatar"
+        />
+
         <button
           className="edit-profile-btn"
           onClick={() => setIsEditing(true)}

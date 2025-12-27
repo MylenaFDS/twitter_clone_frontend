@@ -3,13 +3,12 @@ import Feed from "./pages/Feed";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Profile from "./pages/Profile";
+import UserProfile from "./pages/UserProfile";
 import Layout from "./components/Layout";
 
 export default function App() {
   const token = localStorage.getItem("access");
   const isAuthenticated = Boolean(token);
-  
-
 
   return (
     <BrowserRouter>
@@ -22,7 +21,7 @@ export default function App() {
           element={<div>Recuperar senha (em breve)</div>}
         />
 
-        {/* 🔐 Rotas protegidas */}
+        {/* 🔐 Feed */}
         <Route
           path="/"
           element={
@@ -36,12 +35,27 @@ export default function App() {
           }
         />
 
+        {/* 🔐 Meu perfil */}
         <Route
           path="/profile"
           element={
             isAuthenticated ? (
               <Layout>
                 <Profile />
+              </Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+
+        {/* 🔐 Perfil de outro usuário */}
+        <Route
+          path="/users/:id"
+          element={
+            isAuthenticated ? (
+              <Layout>
+                <UserProfile />
               </Layout>
             ) : (
               <Navigate to="/login" />

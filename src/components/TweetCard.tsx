@@ -1,8 +1,9 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import "../styles/tweet.css";
 import type { Tweet } from "../types/Tweet";
 import { toggleLike } from "../services/tweets";
-import Comments from "./Comments"; // 👈 vamos usar
+import Comments from "./Comments";
 
 interface TweetProps {
   tweet: Tweet;
@@ -23,7 +24,7 @@ function timeAgo(dateString: string) {
 export default function TweetCard({ tweet, onUnlike }: TweetProps) {
   const [liked, setLiked] = useState(tweet.liked);
   const [likesCount, setLikesCount] = useState(tweet.likes_count);
-  const [commentsCount, setCommentsCount] = useState(tweet.comments_count); // ✅
+  const [commentsCount, setCommentsCount] = useState(tweet.comments_count);
   const [showComments, setShowComments] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -46,20 +47,34 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
 
   return (
     <article className="tweet">
+      {/* 🔹 Avatar clicável */}
       <div className="tweet-avatar">
-        <div className="avatar-circle">
-          {tweet.author.username[0].toUpperCase()}
-        </div>
+        <Link to={`/users/${tweet.author.id}`}>
+          <div className="avatar-circle">
+            {tweet.author.username[0].toUpperCase()}
+          </div>
+        </Link>
       </div>
 
       <div className="tweet-content">
+        {/* 🔹 Header */}
         <div className="tweet-header">
-          <span className="tweet-name">@{tweet.author.username}</span>
-          <span className="tweet-time">· {timeAgo(tweet.created_at)}</span>
+          <Link
+            to={`/users/${tweet.author.id}`}
+            className="tweet-name"
+          >
+            @{tweet.author.username}
+          </Link>
+
+          <span className="tweet-time">
+            · {timeAgo(tweet.created_at)}
+          </span>
         </div>
 
+        {/* 🔹 Conteúdo */}
         <p className="tweet-text">{tweet.content}</p>
 
+        {/* 🔹 Ações */}
         <div className="tweet-actions">
           <button
             aria-label="Comentar"
@@ -92,8 +107,8 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
             onCommentDeleted={() =>
               setCommentsCount((prev) => prev - 1)
             }
-            />
-          )}
+          />
+        )}
       </div>
     </article>
   );
