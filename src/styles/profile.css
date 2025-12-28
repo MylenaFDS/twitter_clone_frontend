@@ -268,3 +268,17 @@
   color: #e7e9ea;
   border-bottom: 2px solid #1d9bf0;
 }
+
+.follow-btn {
+  transition: all 0.2s ease;
+}
+
+.follow-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.follow-btn.following {
+  background-color: #1d9bf0;
+  color: white;
+}

@@ -12,7 +12,7 @@ interface UserProfile {
   bio: string;
   avatar: string;
   banner: string;
-  is_following: boolean; // ✅ vem do backend
+  is_following: boolean; // 🔑 fonte única da verdade
 }
 
 export default function UserProfile() {
@@ -20,21 +20,23 @@ export default function UserProfile() {
 
   const [user, setUser] = useState<UserProfile | null>(null);
   const [tweets, setTweets] = useState<Tweet[]>([]);
-  const [isFollowing, setIsFollowing] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const [meId, setMeId] = useState<number | null>(null);
+  const [followLoading, setFollowLoading] = useState(false);
 
   const token = localStorage.getItem("access");
   const API_BASE_URL = "http://127.0.0.1:9000";
 
+  /* 🔹 Carrega perfil visitado */
   const loadProfile = useCallback(async () => {
     if (!id || !token) return;
 
     setLoading(true);
 
     try {
-      // 🔹 Dados do usuário visitado
       const userRes = await fetch(
-        `${API_BASE_URL}/api/users/${id}/`,
+        `${API_BASE_URL}/api/profiles/${id}/`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -46,9 +48,7 @@ export default function UserProfile() {
 
       const userData: UserProfile = await userRes.json();
       setUser(userData);
-      setIsFollowing(userData.is_following); // ✅ CORRETO
 
-      // 🔹 Tweets do usuário visitado
       const postsRes = await fetch(
         `${API_BASE_URL}/api/posts/?author=${id}`,
         {
@@ -67,12 +67,33 @@ export default function UserProfile() {
     }
   }, [id, token]);
 
+  /* 🔹 Carrega usuário logado */
+  useEffect(() => {
+    if (!token) return;
+
+    fetch(`${API_BASE_URL}/api/me/`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => setMeId(data.id))
+      .catch(() => {});
+  }, [token]);
+
   useEffect(() => {
     loadProfile();
   }, [loadProfile]);
 
+  /* 🔹 Seguir / Deixar de seguir */
   async function handleToggleFollow() {
-    if (!id || !token) return;
+    if (!id || !token || followLoading || !user) return;
+
+    const previous = user.is_following;
+
+    // 🔹 update otimista
+    setUser({ ...user, is_following: !previous });
+    setFollowLoading(true);
 
     try {
       const res = await fetch(
@@ -88,7 +109,11 @@ export default function UserProfile() {
       if (!res.ok) throw new Error();
 
       const data: { following: boolean } = await res.json();
-      setIsFollowing(data.following);
+
+      // 🔹 sincroniza com backend
+      setUser((prev) =>
+        prev ? { ...prev, is_following: data.following } : prev
+      );
 
       toast.success(
         data.following
@@ -96,10 +121,17 @@ export default function UserProfile() {
           : "Você deixou de seguir"
       );
     } catch {
+      // 🔹 rollback em caso de erro
+      setUser((prev) =>
+        prev ? { ...prev, is_following: previous } : prev
+      );
       toast.error("Erro ao seguir usuário");
+    } finally {
+      setFollowLoading(false);
     }
   }
 
+  /* 🔹 Loading */
   if (loading) {
     return (
       <>
@@ -135,12 +167,22 @@ export default function UserProfile() {
           alt="Avatar"
         />
 
-        <button
-          className={`follow-btn ${isFollowing ? "following" : ""}`}
-          onClick={handleToggleFollow}
-        >
-          {isFollowing ? "Seguindo" : "Seguir"}
-        </button>
+        {/* 🔒 NÃO mostrar botão no próprio perfil */}
+        {meId !== null && meId !== user.id && (
+          <button
+            className={`follow-btn ${
+              user.is_following ? "following" : ""
+            }`}
+            onClick={handleToggleFollow}
+            disabled={followLoading}
+          >
+            {followLoading
+              ? "Aguarde..."
+              : user.is_following
+              ? "Seguindo"
+              : "Seguir"}
+          </button>
+        )}
       </div>
 
       {/* 🔹 Info */}
