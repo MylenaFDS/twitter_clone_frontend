@@ -10,9 +10,9 @@ interface UserProfile {
   id: number;
   username: string;
   bio: string;
-  avatar: string;
-  banner: string;
-  is_following: boolean; // 🔑 fonte única da verdade
+  avatar: string | null;
+  banner: string | null;
+  is_following: boolean;
 }
 
 export default function UserProfile() {
@@ -35,7 +35,8 @@ export default function UserProfile() {
     setLoading(true);
 
     try {
-      const userRes = await fetch(
+      /* 🔹 PERFIL SOCIAL (follow, bio, username) */
+      const profileRes = await fetch(
         `${API_BASE_URL}/api/profiles/${id}/`,
         {
           headers: {
@@ -44,11 +45,29 @@ export default function UserProfile() {
         }
       );
 
+      if (!profileRes.ok) throw new Error();
+      const profileData = await profileRes.json();
+
+      /* 🔹 MÍDIA (avatar / banner) */
+      const userRes = await fetch(
+        `${API_BASE_URL}/api/users/${id}/`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       if (!userRes.ok) throw new Error();
+      const userData = await userRes.json();
 
-      const userData: UserProfile = await userRes.json();
-      setUser(userData);
+      setUser({
+        ...profileData,
+        avatar: userData.avatar,
+        banner: userData.banner,
+      });
 
+      /* 🔹 TWEETS DO USUÁRIO */
       const postsRes = await fetch(
         `${API_BASE_URL}/api/posts/?author=${id}`,
         {
@@ -58,6 +77,7 @@ export default function UserProfile() {
         }
       );
 
+      if (!postsRes.ok) throw new Error();
       const postsData: Tweet[] = await postsRes.json();
       setTweets(postsData);
     } catch {
@@ -67,7 +87,7 @@ export default function UserProfile() {
     }
   }, [id, token]);
 
-  /* 🔹 Carrega usuário logado */
+  /* 🔹 Usuário logado */
   useEffect(() => {
     if (!token) return;
 
@@ -91,7 +111,6 @@ export default function UserProfile() {
 
     const previous = user.is_following;
 
-    // 🔹 update otimista
     setUser({ ...user, is_following: !previous });
     setFollowLoading(true);
 
@@ -110,7 +129,6 @@ export default function UserProfile() {
 
       const data: { following: boolean } = await res.json();
 
-      // 🔹 sincroniza com backend
       setUser((prev) =>
         prev ? { ...prev, is_following: data.following } : prev
       );
@@ -121,7 +139,6 @@ export default function UserProfile() {
           : "Você deixou de seguir"
       );
     } catch {
-      // 🔹 rollback em caso de erro
       setUser((prev) =>
         prev ? { ...prev, is_following: previous } : prev
       );
@@ -167,7 +184,6 @@ export default function UserProfile() {
           alt="Avatar"
         />
 
-        {/* 🔒 NÃO mostrar botão no próprio perfil */}
         {meId !== null && meId !== user.id && (
           <button
             className={`follow-btn ${
