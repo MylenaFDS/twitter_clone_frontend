@@ -35,7 +35,7 @@ export default function UserProfile() {
     setLoading(true);
 
     try {
-      /* 🔹 PERFIL SOCIAL (follow, bio, username) */
+      /* 🔹 PERFIL COMPLETO (já inclui avatar e banner) */
       const profileRes = await fetch(
         `${API_BASE_URL}/api/profiles/${id}/`,
         {
@@ -46,26 +46,9 @@ export default function UserProfile() {
       );
 
       if (!profileRes.ok) throw new Error();
-      const profileData = await profileRes.json();
+      const profileData: UserProfile = await profileRes.json();
 
-      /* 🔹 MÍDIA (avatar / banner) */
-      const userRes = await fetch(
-        `${API_BASE_URL}/api/users/${id}/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (!userRes.ok) throw new Error();
-      const userData = await userRes.json();
-
-      setUser({
-        ...profileData,
-        avatar: userData.avatar,
-        banner: userData.banner,
-      });
+      setUser(profileData);
 
       /* 🔹 TWEETS DO USUÁRIO */
       const postsRes = await fetch(
@@ -167,7 +150,7 @@ export default function UserProfile() {
         className="profile-banner"
         style={{
           backgroundImage: user.banner
-            ? `url(${API_BASE_URL}${user.banner})`
+            ? `url(${user.banner})`
             : undefined,
         }}
       />
@@ -176,11 +159,7 @@ export default function UserProfile() {
       <div className="profile-top">
         <img
           className="profile-avatar"
-          src={
-            user.avatar
-              ? `${API_BASE_URL}${user.avatar}`
-              : "https://via.placeholder.com/120"
-          }
+          src={user.avatar ?? "https://via.placeholder.com/120"}
           alt="Avatar"
         />
 
