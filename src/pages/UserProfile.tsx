@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import TweetCard from "../components/TweetCard";
 import SkeletonTweet from "../components/SkeletonTweet";
+import FollowersModal from "../components/FollowersModal";
 import { toast } from "react-toastify";
 import type { Tweet } from "../types/Tweet";
 import "../styles/profile.css";
@@ -13,6 +14,8 @@ interface UserProfile {
   avatar: string | null;
   banner: string | null;
   is_following: boolean;
+  followers_count?: number;
+  following_count?: number;
 }
 
 export default function UserProfile() {
@@ -25,6 +28,9 @@ export default function UserProfile() {
   const [meId, setMeId] = useState<number | null>(null);
   const [followLoading, setFollowLoading] = useState(false);
 
+  const [showFollowers, setShowFollowers] = useState(false);
+  const [showFollowing, setShowFollowing] = useState(false);
+
   const token = localStorage.getItem("access");
   const API_BASE_URL = "http://127.0.0.1:9000";
 
@@ -35,7 +41,7 @@ export default function UserProfile() {
     setLoading(true);
 
     try {
-      /* 🔹 PERFIL COMPLETO (já inclui avatar e banner) */
+      /* 🔹 PERFIL COMPLETO */
       const profileRes = await fetch(
         `${API_BASE_URL}/api/profiles/${id}/`,
         {
@@ -47,7 +53,6 @@ export default function UserProfile() {
 
       if (!profileRes.ok) throw new Error();
       const profileData: UserProfile = await profileRes.json();
-
       setUser(profileData);
 
       /* 🔹 TWEETS DO USUÁRIO */
@@ -93,7 +98,6 @@ export default function UserProfile() {
     if (!id || !token || followLoading || !user) return;
 
     const previous = user.is_following;
-
     setUser({ ...user, is_following: !previous });
     setFollowLoading(true);
 
@@ -109,17 +113,10 @@ export default function UserProfile() {
       );
 
       if (!res.ok) throw new Error();
-
       const data: { following: boolean } = await res.json();
 
       setUser((prev) =>
         prev ? { ...prev, is_following: data.following } : prev
-      );
-
-      toast.success(
-        data.following
-          ? "Agora você segue este usuário"
-          : "Você deixou de seguir"
       );
     } catch {
       setUser((prev) =>
@@ -184,6 +181,17 @@ export default function UserProfile() {
       <div className="profile-info">
         <h2>@{user.username}</h2>
         {user.bio && <p className="bio">{user.bio}</p>}
+
+        <div className="profile-stats">
+          <button onClick={() => setShowFollowers(true)}>
+            {user.followers_count ?? 0} Seguidores
+          </button>
+
+          <button onClick={() => setShowFollowing(true)}>
+            {user.following_count ?? 0} Seguindo
+          </button>
+        </div>
+
         <span>{tweets.length} Tweets</span>
       </div>
 
@@ -196,6 +204,23 @@ export default function UserProfile() {
         tweets.map((tweet) => (
           <TweetCard key={tweet.id} tweet={tweet} />
         ))
+      )}
+
+      {/* 🔹 Modais */}
+      {showFollowers && (
+        <FollowersModal
+          userId={user.id}
+          type="followers"
+          onClose={() => setShowFollowers(false)}
+        />
+      )}
+
+      {showFollowing && (
+        <FollowersModal
+          userId={user.id}
+          type="following"
+          onClose={() => setShowFollowing(false)}
+        />
       )}
     </div>
   );
