@@ -47,12 +47,20 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
 
   return (
     <article className="tweet">
-      {/* 🔹 Avatar clicável */}
+      {/* 🔹 Avatar */}
       <div className="tweet-avatar">
         <Link to={`/users/${tweet.author.id}`}>
-          <div className="avatar-circle">
-            {tweet.author.username[0].toUpperCase()}
-          </div>
+          {tweet.author.avatar ? (
+            <img
+              src={tweet.author.avatar}
+              alt={tweet.author.username}
+              className="avatar-circle"
+            />
+          ) : (
+            <div className="avatar-circle avatar-fallback">
+              {tweet.author.username[0].toUpperCase()}
+            </div>
+          )}
         </Link>
       </div>
 
@@ -76,17 +84,13 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
 
         {/* 🔹 Ações */}
         <div className="tweet-actions">
-          <button
-            aria-label="Comentar"
-            onClick={() => setShowComments((prev) => !prev)}
-          >
+          <button onClick={() => setShowComments((p) => !p)}>
             💬 {commentsCount}
           </button>
 
-          <button aria-label="Retweetar">🔁</button>
+          <button>🔁</button>
 
           <button
-            aria-label="Curtir"
             onClick={handleLike}
             className={liked ? "liked" : ""}
             disabled={loading}
@@ -94,7 +98,7 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
             ❤️ {likesCount}
           </button>
 
-          <button aria-label="Compartilhar">📤</button>
+          <button>📤</button>
         </div>
 
         {/* 🔽 Comentários */}
