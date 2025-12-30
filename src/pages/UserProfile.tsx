@@ -1,8 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import TweetCard from "../components/TweetCard";
 import SkeletonTweet from "../components/SkeletonTweet";
-import FollowersModal from "../components/FollowersModal";
 import { toast } from "react-toastify";
 import type { Tweet } from "../types/Tweet";
 import "../styles/profile.css";
@@ -14,8 +13,14 @@ interface UserProfile {
   avatar: string | null;
   banner: string | null;
   is_following: boolean;
-  followers_count?: number;
-  following_count?: number;
+  followers_count: number;
+  following_count: number;
+}
+
+interface SimpleUser {
+  id: number;
+  username: string;
+  avatar: string | null;
 }
 
 export default function UserProfile() {
@@ -28,46 +33,41 @@ export default function UserProfile() {
   const [meId, setMeId] = useState<number | null>(null);
   const [followLoading, setFollowLoading] = useState(false);
 
-  const [showFollowers, setShowFollowers] = useState(false);
-  const [showFollowing, setShowFollowing] = useState(false);
+  /* 🔹 Modal */
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] = useState<"followers" | "following">(
+    "followers"
+  );
+  const [listUsers, setListUsers] = useState<SimpleUser[]>([]);
+  const [listLoading, setListLoading] = useState(false);
 
   const token = localStorage.getItem("access");
   const API_BASE_URL = "http://127.0.0.1:9000";
 
-  /* 🔹 Carrega perfil visitado */
+  /* 🔹 Carrega perfil */
   const loadProfile = useCallback(async () => {
     if (!id || !token) return;
 
     setLoading(true);
 
     try {
-      /* 🔹 PERFIL COMPLETO */
-      const profileRes = await fetch(
-        `${API_BASE_URL}/api/profiles/${id}/`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await fetch(`${API_BASE_URL}/api/profiles/${id}/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      if (!profileRes.ok) throw new Error();
-      const profileData: UserProfile = await profileRes.json();
-      setUser(profileData);
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setUser(data);
 
-      /* 🔹 TWEETS DO USUÁRIO */
       const postsRes = await fetch(
         `${API_BASE_URL}/api/posts/?author=${id}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       if (!postsRes.ok) throw new Error();
-      const postsData: Tweet[] = await postsRes.json();
-      setTweets(postsData);
+      setTweets(await postsRes.json());
     } catch {
       toast.error("Erro ao carregar perfil");
     } finally {
@@ -80,9 +80,7 @@ export default function UserProfile() {
     if (!token) return;
 
     fetch(`${API_BASE_URL}/api/me/`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then((data) => setMeId(data.id))
@@ -93,40 +91,86 @@ export default function UserProfile() {
     loadProfile();
   }, [loadProfile]);
 
-  /* 🔹 Seguir / Deixar de seguir */
-  async function handleToggleFollow() {
-    if (!id || !token || followLoading || !user) return;
+  /* 🔹 Abrir modal seguidores / seguindo */
+  async function openList(type: "followers" | "following") {
+    if (!id || !token) return;
 
-    const previous = user.is_following;
-    setUser({ ...user, is_following: !previous });
-    setFollowLoading(true);
+    setModalType(type);
+    setShowModal(true);
+    setListLoading(true);
 
     try {
       const res = await fetch(
-        `${API_BASE_URL}/api/follows/${id}/`,
+        `${API_BASE_URL}/api/users/${id}/${type}/`,
         {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       if (!res.ok) throw new Error();
-      const data: { following: boolean } = await res.json();
-
-      setUser((prev) =>
-        prev ? { ...prev, is_following: data.following } : prev
-      );
+      setListUsers(await res.json());
     } catch {
-      setUser((prev) =>
-        prev ? { ...prev, is_following: previous } : prev
-      );
-      toast.error("Erro ao seguir usuário");
+      toast.error("Erro ao carregar lista");
     } finally {
-      setFollowLoading(false);
+      setListLoading(false);
     }
   }
+
+  /* 🔹 Seguir / deixar de seguir */
+  async function handleToggleFollow() {
+  if (!id || !token || followLoading || !user) return;
+
+  const wasFollowing = user.is_following;
+
+  // 🔹 Atualização otimista
+  setUser({
+    ...user,
+    is_following: !wasFollowing,
+    followers_count: wasFollowing
+      ? user.followers_count - 1
+      : user.followers_count + 1,
+  });
+
+  setFollowLoading(true);
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/follows/${id}/`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+
+    // 🔹 Garante consistência
+    setUser((prev) =>
+      prev
+        ? {
+            ...prev,
+            is_following: data.following,
+          }
+        : prev
+    );
+  } catch {
+    // 🔹 Reverte se der erro
+    setUser((prev) =>
+      prev
+        ? {
+            ...prev,
+            is_following: wasFollowing,
+            followers_count: wasFollowing
+              ? prev.followers_count + 1
+              : prev.followers_count - 1,
+          }
+        : prev
+    );
+
+    toast.error("Erro ao seguir usuário");
+  } finally {
+    setFollowLoading(false);
+  }
+}
+
 
   /* 🔹 Loading */
   if (loading) {
@@ -146,9 +190,7 @@ export default function UserProfile() {
       <div
         className="profile-banner"
         style={{
-          backgroundImage: user.banner
-            ? `url(${user.banner})`
-            : undefined,
+          backgroundImage: user.banner ? `url(${user.banner})` : undefined,
         }}
       />
 
@@ -168,11 +210,7 @@ export default function UserProfile() {
             onClick={handleToggleFollow}
             disabled={followLoading}
           >
-            {followLoading
-              ? "Aguarde..."
-              : user.is_following
-              ? "Seguindo"
-              : "Seguir"}
+            {user.is_following ? "Seguindo" : "Seguir"}
           </button>
         )}
       </div>
@@ -182,17 +220,14 @@ export default function UserProfile() {
         <h2>@{user.username}</h2>
         {user.bio && <p className="bio">{user.bio}</p>}
 
-        <div className="profile-stats">
-          <button onClick={() => setShowFollowers(true)}>
-            {user.followers_count ?? 0} Seguidores
-          </button>
-
-          <button onClick={() => setShowFollowing(true)}>
-            {user.following_count ?? 0} Seguindo
-          </button>
+        <div className="follow-info">
+          <span onClick={() => openList("following")}>
+            <strong>{user.following_count}</strong> Seguindo
+          </span>
+          <span onClick={() => openList("followers")}>
+            <strong>{user.followers_count}</strong> Seguidores
+          </span>
         </div>
-
-        <span>{tweets.length} Tweets</span>
       </div>
 
       {/* 🔹 Tweets */}
@@ -206,21 +241,49 @@ export default function UserProfile() {
         ))
       )}
 
-      {/* 🔹 Modais */}
-      {showFollowers && (
-        <FollowersModal
-          userId={user.id}
-          type="followers"
-          onClose={() => setShowFollowers(false)}
-        />
-      )}
+      {/* 🔹 MODAL */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div
+            className="modal-twitter"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header">
+              <h3>
+                {modalType === "followers"
+                  ? "Seguidores"
+                  : "Seguindo"}
+              </h3>
+              <button onClick={() => setShowModal(false)}>✕</button>
+            </div>
 
-      {showFollowing && (
-        <FollowersModal
-          userId={user.id}
-          type="following"
-          onClose={() => setShowFollowing(false)}
-        />
+            <div className="modal-body">
+              {listLoading ? (
+                <p className="loading-text">Carregando...</p>
+              ) : listUsers.length === 0 ? (
+                <p className="loading-text">Nenhum usuário</p>
+              ) : (
+                listUsers.map((u) => (
+                  <Link
+                    to={`/users/${u.id}`}
+                    key={u.id}
+                    className="user-row"
+                    onClick={() => setShowModal(false)}
+                  >
+                    <img
+                      src={
+                        u.avatar ??
+                        "https://via.placeholder.com/40"
+                      }
+                      alt="avatar"
+                    />
+                    <span>@{u.username}</span>
+                  </Link>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
