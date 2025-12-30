@@ -347,3 +347,17 @@
   background: transparent;
   color: #1d9bf0;
 }
+
+.unfollow-btn {
+  margin-left: auto;
+  padding: 6px 12px;
+  border-radius: 20px;
+  border: 1px solid #536471;
+  background: transparent;
+  color: #e0245e;
+  cursor: pointer;
+}
+
+.unfollow-btn:hover {
+  background: rgba(224, 36, 94, 0.1);
+}
