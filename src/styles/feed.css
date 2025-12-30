@@ -64,3 +64,38 @@
     border: none;
   }
 }
+
+.suggestions-box {
+  background: transparent;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  padding: 12px;
+  margin: 12px 0;
+}
+
+.suggestion-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.suggestion-row img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.mini-follow-btn {
+  border: 1px solid #1d9bf0;
+  background: transparent;
+  color: #1d9bf0;
+  border-radius: 20px;
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.mini-follow-btn.following {
+  background: #1d9bf0;
+  color: #fff;
+}
