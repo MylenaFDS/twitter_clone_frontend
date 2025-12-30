@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import TweetCard from "../components/TweetCard";
 import SkeletonTweet from "../components/SkeletonTweet";
+import SkeletonUserRow from "../components/SkeletonUserRow";
 import { toast } from "react-toastify";
 import type { Tweet } from "../types/Tweet";
 import "../styles/profile.css";
@@ -296,40 +297,45 @@ async function toggleFollowFromList(userId: number) {
             </div>
 
             <div className="modal-body">
-              {listLoading ? (
-                <p className="loading-text">Carregando...</p>
-              ) : listUsers.length === 0 ? (
-                <p className="loading-text">Nenhum usuário</p>
-              ) : (
-                listUsers.map((u) => (
-  <div key={u.id} className="user-row">
-    <Link
-      to={`/users/${u.id}`}
-      className="user-info"
-      onClick={() => setShowModal(false)}
-    >
-      <img
-        src={u.avatar ?? "https://via.placeholder.com/40"}
-        alt="avatar"
-      />
-      <span>@{u.username}</span>
-    </Link>
+  {listLoading ? (
+    <>
+      <SkeletonUserRow />
+      <SkeletonUserRow />
+      <SkeletonUserRow />
+      <SkeletonUserRow />
+    </>
+  ) : listUsers.length === 0 ? (
+    <p className="loading-text">Nenhum usuário</p>
+  ) : (
+    listUsers.map((u) => (
+      <div key={u.id} className="user-row">
+        <Link
+          to={`/users/${u.id}`}
+          className="user-info"
+          onClick={() => setShowModal(false)}
+        >
+          <img
+            src={u.avatar ?? "https://via.placeholder.com/40"}
+            alt="avatar"
+          />
+          <span>@{u.username}</span>
+        </Link>
 
-    {meId !== u.id && (
-      <button
-        className={`mini-follow-btn ${
-          u.is_following ? "following" : ""
-        }`}
-        onClick={() => toggleFollowFromList(u.id)}
-      >
-        {u.is_following ? "Seguindo" : "Seguir"}
-      </button>
-    )}
-  </div>
-))
+        {meId !== u.id && (
+          <button
+            className={`mini-follow-btn ${
+              u.is_following ? "following" : ""
+            }`}
+            onClick={() => toggleFollowFromList(u.id)}
+          >
+            {u.is_following ? "Seguindo" : "Seguir"}
+          </button>
+        )}
+      </div>
+    ))
+  )}
+</div>
 
-              )}
-            </div>
           </div>
         </div>
       )}
