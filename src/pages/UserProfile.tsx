@@ -21,7 +21,9 @@ interface SimpleUser {
   id: number;
   username: string;
   avatar: string | null;
+  is_following: boolean;
 }
+
 
 export default function UserProfile() {
   const { id } = useParams<{ id: string }>();
@@ -171,6 +173,42 @@ export default function UserProfile() {
   }
 }
 
+async function toggleFollowFromList(userId: number) {
+  if (!token) return;
+
+  // 🔹 Atualização otimista
+  setListUsers((prev) =>
+    prev.map((u) =>
+      u.id === userId
+        ? { ...u, is_following: !u.is_following }
+        : u
+    )
+  );
+
+  try {
+    const res = await fetch(
+      `${API_BASE_URL}/api/follows/${userId}/`,
+      {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    if (!res.ok) throw new Error();
+  } catch {
+    // 🔹 Reverte se der erro
+    setListUsers((prev) =>
+      prev.map((u) =>
+        u.id === userId
+          ? { ...u, is_following: !u.is_following }
+          : u
+      )
+    );
+
+    toast.error("Erro ao seguir usuário");
+  }
+}
+
 
   /* 🔹 Loading */
   if (loading) {
@@ -264,22 +302,32 @@ export default function UserProfile() {
                 <p className="loading-text">Nenhum usuário</p>
               ) : (
                 listUsers.map((u) => (
-                  <Link
-                    to={`/users/${u.id}`}
-                    key={u.id}
-                    className="user-row"
-                    onClick={() => setShowModal(false)}
-                  >
-                    <img
-                      src={
-                        u.avatar ??
-                        "https://via.placeholder.com/40"
-                      }
-                      alt="avatar"
-                    />
-                    <span>@{u.username}</span>
-                  </Link>
-                ))
+  <div key={u.id} className="user-row">
+    <Link
+      to={`/users/${u.id}`}
+      className="user-info"
+      onClick={() => setShowModal(false)}
+    >
+      <img
+        src={u.avatar ?? "https://via.placeholder.com/40"}
+        alt="avatar"
+      />
+      <span>@{u.username}</span>
+    </Link>
+
+    {meId !== u.id && (
+      <button
+        className={`mini-follow-btn ${
+          u.is_following ? "following" : ""
+        }`}
+        onClick={() => toggleFollowFromList(u.id)}
+      >
+        {u.is_following ? "Seguindo" : "Seguir"}
+      </button>
+    )}
+  </div>
+))
+
               )}
             </div>
           </div>

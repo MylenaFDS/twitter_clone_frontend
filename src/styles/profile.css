@@ -271,6 +271,13 @@
 
 .follow-btn {
   transition: all 0.2s ease;
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #1d9bf0;
+  background: #1d9bf0;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
 }
 
 .follow-btn:disabled {
@@ -279,6 +286,64 @@
 }
 
 .follow-btn.following {
-  background-color: #1d9bf0;
+  background-color: transparent;
+  color: #1d9bf0;
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 12px;
+  text-decoration: none;
+  color: inherit;
+
+  transition: background 0.2s;
+}
+
+.user-row:hover {
+  background: #434a4e;
+  border-radius: 5px;
+}
+
+.user-row img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.user-row span {
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.user-row span {
+  font-weight: 500;
+  font-size: 15px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.mini-follow-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #1d9bf0;
+  background: #1d9bf0;
   color: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.mini-follow-btn.following {
+  background: transparent;
+  color: #1d9bf0;
 }
