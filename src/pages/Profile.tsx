@@ -9,10 +9,19 @@ import { TOAST_MESSAGES } from "../utils/toastMessages";
 import { AxiosError } from "axios";
 
 interface UserProfile {
+  id: number;
   username: string;
   bio: string;
   avatar: string;
   banner: string;
+  followers_count: number;
+  following_count: number;
+}
+
+interface SimpleUser {
+  id: number;
+  username: string;
+  avatar: string | null;
 }
 
 type Tab = "tweets" | "likes";
@@ -26,19 +35,22 @@ function resolveMediaUrl(url?: string) {
 
 export default function Profile() {
   const [tweets, setTweets] = useState<Tweet[]>([]);
-  const [user, setUser] = useState<UserProfile>({
-    username: "",
-    bio: "",
-    avatar: "",
-    banner: "",
-  });
+  const [user, setUser] = useState<UserProfile | null>(null);
 
   const [activeTab, setActiveTab] = useState<Tab>("tweets");
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  /* 🔹 Modal seguidores/seguindo */
+  const [showModal, setShowModal] = useState(false);
+  const [modalType, setModalType] =
+    useState<"followers" | "following">("followers");
+  const [listUsers, setListUsers] = useState<SimpleUser[]>([]);
+  const [listLoading, setListLoading] = useState(false);
+
   const token = localStorage.getItem("access");
 
+  /* 🔹 Carregar perfil + tweets */
   useEffect(() => {
     if (!token) {
       setLoading(false);
@@ -49,21 +61,13 @@ export default function Profile() {
       setLoading(true);
 
       try {
-        // 🔹 Perfil do usuário
         const userRes = await fetch(`${API_BASE_URL}/api/me/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
         const userData = await userRes.json();
+        setUser(userData);
 
-        setUser({
-          username: userData.username,
-          bio: userData.bio || "",
-          avatar: userData.avatar || "",
-          banner: userData.banner || "",
-        });
-
-        // 🔹 Tweets / Curtidas
         const postsUrl =
           activeTab === "tweets"
             ? `${API_BASE_URL}/api/posts/?author=me`
@@ -73,8 +77,7 @@ export default function Profile() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        const postsData = await postsRes.json();
-        setTweets(postsData);
+        setTweets(await postsRes.json());
       } catch (error: unknown) {
         if (error instanceof AxiosError) {
           if (error.response?.status === 401) {
@@ -89,14 +92,39 @@ export default function Profile() {
     loadProfile();
   }, [token, activeTab]);
 
-  // ✅ Remove tweet da aba Curtidas ao descurtir
-  function handleUnlike(tweetId: number) {
-    if (activeTab === "likes") {
-      setTweets((prev) => prev.filter((tweet) => tweet.id !== tweetId));
+  /* 🔹 Abrir lista seguidores / seguindo (CORRIGIDO) */
+  async function openList(type: "followers" | "following") {
+    if (!token || !user) return;
+
+    setModalType(type);
+    setShowModal(true);
+    setListLoading(true);
+
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/api/users/${user.id}/${type}/`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (!res.ok) throw new Error();
+      setListUsers(await res.json());
+    } catch {
+      showError("Erro ao carregar lista");
+    } finally {
+      setListLoading(false);
     }
   }
 
-  // 🔹 Atualizar perfil
+  /* 🔹 Remove tweet da aba Curtidas */
+  function handleUnlike(tweetId: number) {
+    if (activeTab === "likes") {
+      setTweets((prev) => prev.filter((t) => t.id !== tweetId));
+    }
+  }
+
+  /* 🔹 Salvar perfil */
   async function handleSaveProfile(updatedData: {
     username?: string;
     bio?: string;
@@ -106,7 +134,6 @@ export default function Profile() {
     if (!token) return;
 
     const formData = new FormData();
-
     if (updatedData.username) formData.append("username", updatedData.username);
     if (updatedData.bio) formData.append("bio", updatedData.bio);
     if (updatedData.avatar) formData.append("avatar", updatedData.avatar);
@@ -114,34 +141,22 @@ export default function Profile() {
 
     const res = await fetch(`${API_BASE_URL}/api/me/`, {
       method: "PATCH",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers: { Authorization: `Bearer ${token}` },
       body: formData,
     });
 
-    if (!res.ok) {
-      throw new Error("Erro ao salvar perfil");
-    }
-
     const data = await res.json();
-
-    setUser({
-      username: data.username,
-      bio: data.bio || "",
-      avatar: data.avatar || "",
-      banner: data.banner || "",
-    });
+    setUser(data);
   }
 
-  // 🔹 Alterar senha
+  /* 🔹 Alterar senha */
   async function handleChangePassword(data: {
     old_password: string;
     new_password: string;
   }) {
     if (!token) return;
 
-    const res = await fetch(`${API_BASE_URL}/api/change-password/`, {
+    await fetch(`${API_BASE_URL}/api/change-password/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -149,11 +164,9 @@ export default function Profile() {
       },
       body: JSON.stringify(data),
     });
-
-    if (!res.ok) {
-      throw new Error("Erro ao alterar senha");
-    }
   }
+
+  if (!user) return null;
 
   return (
     <div className="profile">
@@ -190,7 +203,16 @@ export default function Profile() {
       {/* 🔹 Info */}
       <div className="profile-info">
         <h2>@{user.username}</h2>
-        <span>{tweets.length} Tweets</span>
+
+        <div className="follow-info">
+          <span onClick={() => openList("following")}>
+            <strong>{user.following_count}</strong> Seguindo
+          </span>
+          <span onClick={() => openList("followers")}>
+            <strong>{user.followers_count}</strong> Seguidores
+          </span>
+        </div>
+
         {user.bio && <p className="bio">{user.bio}</p>}
       </div>
 
@@ -202,7 +224,6 @@ export default function Profile() {
         >
           Tweets
         </button>
-
         <button
           className={activeTab === "likes" ? "active" : ""}
           onClick={() => setActiveTab("likes")}
@@ -219,17 +240,7 @@ export default function Profile() {
         </>
       ) : tweets.length === 0 ? (
         <div className="empty-profile">
-          {activeTab === "tweets" ? (
-            <>
-              <h3>Você ainda não tweetou</h3>
-              <p>Quando você publicar algo, aparecerá aqui.</p>
-            </>
-          ) : (
-            <>
-              <h3>Nenhuma curtida ainda</h3>
-              <p>Quando você curtir um tweet, ele aparecerá aqui.</p>
-            </>
-          )}
+          <h3>Nada para mostrar</h3>
         </div>
       ) : (
         tweets.map((tweet) => (
@@ -241,7 +252,36 @@ export default function Profile() {
         ))
       )}
 
-      {/* 🔹 Modal */}
+      {/* 🔹 Modal seguidores / seguindo */}
+      {showModal && (
+        <div className="modal-overlay" onClick={() => setShowModal(false)}>
+          <div className="modal-twitter" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>{modalType === "followers" ? "Seguidores" : "Seguindo"}</h3>
+              <button onClick={() => setShowModal(false)}>✕</button>
+            </div>
+
+            <div className="modal-body">
+              {listLoading ? (
+                <p>Carregando...</p>
+              ) : listUsers.length === 0 ? (
+                <p>Nenhum usuário</p>
+              ) : (
+                listUsers.map((u) => (
+                  <div key={u.id} className="user-row">
+                    <img
+                      src={u.avatar ?? "https://via.placeholder.com/40"}
+                      alt="avatar"
+                    />
+                    <span>@{u.username}</span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       <EditProfileModal
         isOpen={isEditing}
         onClose={() => setIsEditing(false)}
