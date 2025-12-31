@@ -5,6 +5,7 @@ import Register from "./pages/Register";
 import Profile from "./pages/Profile";
 import UserProfile from "./pages/UserProfile";
 import Layout from "./components/Layout";
+import ForgotPassword from "./pages/ForgotPassword";
 
 export default function App() {
   const token = localStorage.getItem("access");
@@ -16,10 +17,8 @@ export default function App() {
         {/* 🔓 Rotas públicas */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route
-          path="/forgot-password"
-          element={<div>Recuperar senha (em breve)</div>}
-        />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+
 
         {/* 🔐 Feed */}
         <Route
