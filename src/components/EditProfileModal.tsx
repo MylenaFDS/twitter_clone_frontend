@@ -10,8 +10,8 @@ type Props = {
   user: {
     username: string;
     bio: string;
-    avatar: string;
-    banner: string;
+    avatar_url: string | null;
+    banner_url: string | null;
   };
   onSaveProfile: (data: {
     username?: string;
@@ -38,8 +38,8 @@ export default function EditProfileModal({
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [bannerFile, setBannerFile] = useState<File | null>(null);
 
-  const [avatarPreview, setAvatarPreview] = useState(user.avatar);
-  const [bannerPreview, setBannerPreview] = useState(user.banner);
+  const [avatarPreview, setAvatarPreview] = useState(user.avatar_url);
+  const [bannerPreview, setBannerPreview] = useState(user.banner_url);
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");

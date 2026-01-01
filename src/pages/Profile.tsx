@@ -12,8 +12,8 @@ interface UserProfile {
   id: number;
   username: string;
   bio: string;
-  avatar: string;
-  banner: string;
+  avatar_url: string | null;
+  banner_url: string | null;
   followers_count: number;
   following_count: number;
 }
@@ -24,15 +24,9 @@ interface SimpleUser {
   avatar: string | null;
 }
 
-
 type Tab = "tweets" | "likes";
 
 const API_BASE_URL = "http://127.0.0.1:9000";
-
-function resolveMediaUrl(url?: string) {
-  if (!url) return "";
-  return url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
-}
 
 export default function Profile() {
   const [tweets, setTweets] = useState<Tweet[]>([]);
@@ -93,7 +87,7 @@ export default function Profile() {
     loadProfile();
   }, [token, activeTab]);
 
-  /* 🔹 Abrir lista seguidores / seguindo (CORRIGIDO) */
+  /* 🔹 Abrir lista seguidores / seguindo */
   async function openList(type: "followers" | "following") {
     if (!token || !user) return;
 
@@ -125,36 +119,34 @@ export default function Profile() {
     }
   }
 
+  /* 🔹 Deixar de seguir */
   async function handleUnfollow(userId: number) {
-  if (!token || !user) return;
+    if (!token || !user) return;
 
-  try {
-    const res = await fetch(
-      `${API_BASE_URL}/api/users/${userId}/unfollow/`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/api/users/${userId}/unfollow/`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-    if (!res.ok) throw new Error();
+      if (!res.ok) throw new Error();
 
-    // 🔹 Remove da lista
-    setListUsers((prev) => prev.filter((u) => u.id !== userId));
+      setListUsers((prev) => prev.filter((u) => u.id !== userId));
 
-    // 🔹 Atualiza contador
-    setUser((prev) =>
-      prev
-        ? { ...prev, following_count: prev.following_count - 1 }
-        : prev
-    );
-  } catch {
-    showError("Erro ao deixar de seguir");
+      setUser((prev) =>
+        prev
+          ? { ...prev, following_count: prev.following_count - 1 }
+          : prev
+      );
+    } catch {
+      showError("Erro ao deixar de seguir");
+    }
   }
-}
-
 
   /* 🔹 Salvar perfil */
   async function handleSaveProfile(updatedData: {
@@ -206,8 +198,8 @@ export default function Profile() {
       <div
         className="profile-banner"
         style={{
-          backgroundImage: user.banner
-            ? `url(${resolveMediaUrl(user.banner)})`
+          backgroundImage: user.banner_url
+            ? `url(${user.banner_url})`
             : undefined,
         }}
       />
@@ -216,11 +208,7 @@ export default function Profile() {
       <div className="profile-top">
         <img
           className="profile-avatar"
-          src={
-            user.avatar
-              ? resolveMediaUrl(user.avatar)
-              : "https://via.placeholder.com/120"
-          }
+          src={user.avatar_url ?? "https://via.placeholder.com/120"}
           alt="Avatar"
         />
 
@@ -301,23 +289,22 @@ export default function Profile() {
               ) : (
                 listUsers.map((u) => (
                   <div key={u.id} className="user-row">
-  <img
-    src={u.avatar ?? "https://via.placeholder.com/40"}
-    alt="avatar"
-  />
+                    <img
+                      src={u.avatar ?? "https://via.placeholder.com/40"}
+                      alt="avatar"
+                    />
 
-  <span>@{u.username}</span>
+                    <span>@{u.username}</span>
 
-  {modalType === "following" && u.id !== user.id && (
-    <button
-      className="unfollow-btn"
-      onClick={() => handleUnfollow(u.id)}
-    >
-      Deixar de seguir
-    </button>
-  )}
-</div>
-
+                    {modalType === "following" && u.id !== user.id && (
+                      <button
+                        className="unfollow-btn"
+                        onClick={() => handleUnfollow(u.id)}
+                      >
+                        Deixar de seguir
+                      </button>
+                    )}
+                  </div>
                 ))
               )}
             </div>
