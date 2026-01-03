@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
 import Feed from "./pages/Feed";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -12,7 +12,7 @@ export default function App() {
   const isAuthenticated = Boolean(token);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Routes>
         {/* 🔓 Rotas públicas */}
         <Route path="/login" element={<Login />} />
@@ -62,6 +62,6 @@ export default function App() {
           }
         />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
