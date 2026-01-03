@@ -7,7 +7,7 @@ export default function Sidebar() {
       <h2 className="logo">𝕏</h2>
 
       <nav className="sidebar-menu">
-        <Link to="/">🏠 <span>Home</span></Link>
+        <Link to="/feed">🏠 <span>Home</span></Link>
         <Link to="/profile">👤 <span>Perfil</span></Link>
         <Link
           to="/login"
