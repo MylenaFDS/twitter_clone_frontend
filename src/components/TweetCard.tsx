@@ -87,9 +87,6 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
           <button onClick={() => setShowComments((p) => !p)}>
             💬 {commentsCount}
           </button>
-
-          <button>🔁</button>
-
           <button
             onClick={handleLike}
             className={liked ? "liked" : ""}
@@ -98,7 +95,6 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
             ❤️ {likesCount}
           </button>
 
-          <button>📤</button>
         </div>
 
         {/* 🔽 Comentários */}
