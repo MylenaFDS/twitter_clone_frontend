@@ -28,6 +28,14 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
   const [showComments, setShowComments] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // 🔹 usuário logado
+  const loggedUserId = Number(localStorage.getItem("user_id"));
+  const isMyTweet = tweet.author.id === loggedUserId;
+
+  const profileLink = isMyTweet
+    ? "/profile"
+    : `/users/${tweet.author.id}`;
+
   async function handleLike() {
     if (loading) return;
     setLoading(true);
@@ -49,7 +57,7 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
     <article className="tweet">
       {/* 🔹 Avatar */}
       <div className="tweet-avatar">
-        <Link to={`/users/${tweet.author.id}`}>
+        <Link to={profileLink}>
           {tweet.author.avatar ? (
             <img
               src={tweet.author.avatar}
@@ -67,10 +75,7 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
       <div className="tweet-content">
         {/* 🔹 Header */}
         <div className="tweet-header">
-          <Link
-            to={`/users/${tweet.author.id}`}
-            className="tweet-name"
-          >
+          <Link to={profileLink} className="tweet-name">
             @{tweet.author.username}
           </Link>
 
@@ -87,6 +92,7 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
           <button onClick={() => setShowComments((p) => !p)}>
             💬 {commentsCount}
           </button>
+
           <button
             onClick={handleLike}
             className={liked ? "liked" : ""}
@@ -94,7 +100,6 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
           >
             ❤️ {likesCount}
           </button>
-
         </div>
 
         {/* 🔽 Comentários */}
