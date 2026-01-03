@@ -28,7 +28,7 @@ export default function Login() {
       // ✅ ESSENCIAL para comentários / botão deletar
       localStorage.setItem("username", username);
       
-      navigate("/");
+      navigate("/feed", { replace: true });
     } catch {
       setError("Usuário ou senha inválidos");
     } finally {
