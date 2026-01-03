@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Comment } from "../types/Comment";
-
+import "../styles/comments.css"
 interface Props {
   comments: Comment[];
   currentUser: string | null;

@@ -48,3 +48,56 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.comment-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+/* Botões padrão (editar / deletar / salvar / cancelar) */
+.comment-actions button {
+  background: transparent;
+  border: none;
+  color: #8899a6;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Hover genérico */
+.comment-actions button:hover {
+  background-color: rgba(29, 155, 240, 0.1);
+  color: #1d9bf0;
+}
+
+/* Botão deletar */
+.comment-actions button:last-child:hover {
+  background-color: rgba(244, 33, 46, 0.1);
+  color: #f4212e;
+}
+
+/* Quando está editando (Salvar / Cancelar) */
+.comment-actions button:first-child {
+  font-weight: 500;
+}
+
+/* Textarea de edição */
+.comment textarea {
+  width: 100%;
+  margin-top: 6px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #2f3336;
+  background-color: #000;
+  color: #e7e9ea;
+  resize: none;
+  font-size: 14px;
+}
+
+.comment textarea:focus {
+  outline: none;
+  border-color: #1d9bf0;
+}
