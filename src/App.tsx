@@ -13,60 +13,65 @@ export default function App() {
 
   return (
     <HashRouter>
-  <Routes>
+      <Routes>
+        {/* 🔓 Rotas públicas */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
-    {/* 🔁 Redireciona sempre a raiz para login */}
-    <Route path="/" element={<Navigate to="/login" replace />} />
+        {/* 🔐 Feed */}
+        <Route
+          path="/feed"
+          element={
+            isAuthenticated ? (
+              <Layout>
+                <Feed />
+              </Layout>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
 
-    {/* 🔓 Rotas públicas */}
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/forgot-password" element={<ForgotPassword />} />
+        {/* 🔐 Meu perfil */}
+        <Route
+          path="/profile"
+          element={
+            isAuthenticated ? (
+              <Layout>
+                <Profile />
+              </Layout>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
 
-    {/* 🔐 Feed */}
-    <Route
-      path="/feed"
-      element={
-        isAuthenticated ? (
-          <Layout>
-            <Feed />
-          </Layout>
-        ) : (
-          <Navigate to="/login" />
-        )
-      }
-    />
+        {/* 🔐 Perfil de outro usuário */}
+        <Route
+          path="/users/:id"
+          element={
+            isAuthenticated ? (
+              <Layout>
+                <UserProfile />
+              </Layout>
+            ) : (
+              <Navigate to="/login" replace />
+            )
+          }
+        />
 
-    {/* 🔐 Meu perfil */}
-    <Route
-      path="/profile"
-      element={
-        isAuthenticated ? (
-          <Layout>
-            <Profile />
-          </Layout>
-        ) : (
-          <Navigate to="/login" />
-        )
-      }
-    />
-
-    {/* 🔐 Perfil de outro usuário */}
-    <Route
-      path="/users/:id"
-      element={
-        isAuthenticated ? (
-          <Layout>
-            <UserProfile />
-          </Layout>
-        ) : (
-          <Navigate to="/login" />
-        )
-      }
-    />
-
-  </Routes>
-</HashRouter>
-
+        {/* 🔁 Fallback: qualquer rota inválida */}
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to={isAuthenticated ? "/feed" : "/login"}
+              replace
+            />
+          }
+        />
+      </Routes>
+    </HashRouter>
   );
 }
