@@ -1,73 +1,117 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Twitter Clone – Frontend
 
-Currently, two official plugins are available:
+Este é o **frontend** do projeto **Twitter Clone**, desenvolvido em **React + TypeScript**, consumindo uma API REST em Django.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+O objetivo deste projeto é simular as principais funcionalidades do Twitter, como autenticação, feed, curtidas, comentários e perfis de usuários.
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🚀 Tecnologias utilizadas
 
-## Expanding the ESLint configuration
+- React
+- TypeScript
+- Vite
+- React Router
+- Axios
+- CSS puro
+- Deploy no Render
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 📦 Requisitos
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+Antes de começar, você precisa ter instalado:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Node.js (versão 18 ou superior)
+- npm ou yarn
+
+---
+
+## ▶️ Rodando o projeto localmente
+
+1. Clone o repositório:
+
+```bash
+git clone https://github.com/MylenaFDS/twitter_clone_frontend.git
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Acesse a pasta do projeto:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+cd twitter_clone_frontend
 ```
+
+3. Instale as dependências:
+
+```bash
+npm install
+# ou
+yarn install
+```
+
+4. Crie o arquivo de ambiente:
+
+Crie um arquivo `.env` na raiz do projeto com o seguinte conteúdo:
+
+```env
+VITE_API_URL=http://127.0.0.1:9000
+```
+
+> Altere a URL caso o backend esteja rodando em outro endereço.
+
+5. Inicie o servidor de desenvolvimento:
+
+```bash
+npm run dev
+# ou
+yarn dev
+```
+
+6. Acesse no navegador:
+
+```
+http://localhost:5173
+```
+
+---
+
+## 🔐 Autenticação
+
+- O login gera tokens JWT que são armazenados no `localStorage`
+- Rotas protegidas só funcionam para usuários autenticados
+- Logout é feito removendo os tokens
+
+---
+
+## 🧑‍💻 Funcionalidades
+
+- Login e cadastro de usuários
+- Feed de tweets
+- Curtir e descurtir tweets
+- Comentários (criar, editar e excluir)
+- Perfil do usuário
+- Perfil de outros usuários
+- Seguir e deixar de seguir
+- Upload de avatar e banner via Cloudinary
+- Redefinição de senha
+
+---
+
+## 🌐 Deploy
+
+O frontend está publicado no Render:
+
+🔗 https://twitter-clone-static.onrender.com
+
+O projeto utiliza **HashRouter** para garantir funcionamento correto ao recarregar páginas no deploy.
+
+---
+
+## 📝 Observações
+
+Este projeto foi desenvolvido com fins educacionais, como exercício prático de frontend integrado a um backend em Django REST Framework.
+
+---
+
+Feito com 💙 por Mylena
