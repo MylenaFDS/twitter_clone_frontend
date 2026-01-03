@@ -15,7 +15,7 @@ export default function App() {
     <HashRouter>
       <Routes>
         {/* 🔁 RAIZ → SEMPRE LOGIN */}
-        <Route path="/" element={<Navigate to="/login"/>} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
         {/* 🔓 Rotas públicas */}
         <Route path="/login" element={<Login />} />
