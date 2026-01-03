@@ -37,33 +37,38 @@ export default function CommentList({
     <div className="comments">
       {comments.map((comment) => (
         <div key={comment.id} className="comment">
-          <strong>@{comment.author.username}</strong>
+  <div className="comment-body">
+    <strong>@{comment.author.username}</strong>
 
-          {editingId === comment.id ? (
-            <>
-              <textarea
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
-              />
+    {editingId === comment.id ? (
+      <>
+        <textarea
+          value={editContent}
+          onChange={(e) => setEditContent(e.target.value)}
+        />
+      </>
+    ) : (
+      <p>{comment.content}</p>
+    )}
+  </div>
 
-              <div className="comment-actions">
-                <button onClick={() => saveEdit(comment.id)}>Salvar</button>
-                <button onClick={cancelEdit}>Cancelar</button>
-              </div>
-            </>
-          ) : (
-            <>
-              <p>{comment.content}</p>
+  {comment.author.username === currentUser && (
+    <div className="comment-actions">
+      {editingId === comment.id ? (
+        <>
+          <button onClick={() => saveEdit(comment.id)}>Salvar</button>
+          <button onClick={cancelEdit}>Cancelar</button>
+        </>
+      ) : (
+        <>
+          <button onClick={() => startEdit(comment)}>✏️</button>
+          <button onClick={() => onDelete(comment.id)}>🗑️</button>
+        </>
+      )}
+    </div>
+  )}
+</div>
 
-              {comment.author.username === currentUser && (
-                <div className="comment-actions">
-                  <button onClick={() => startEdit(comment)}>✏️</button>
-                  <button onClick={() => onDelete(comment.id)}>🗑️</button>
-                </div>
-              )}
-            </>
-          )}
-        </div>
       ))}
     </div>
   );

@@ -3,10 +3,6 @@
   padding-left: 40px;
 }
 
-.comment {
-  padding: 6px 0;
-  border-bottom: 1px solid #eee;
-}
 
 .comment-form {
   display: flex;
@@ -49,23 +45,9 @@
   cursor: not-allowed;
 }
 
-.comment-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 6px;
-}
 
-/* Botões padrão (editar / deletar / salvar / cancelar) */
-.comment-actions button {
-  background: transparent;
-  border: none;
-  color: #8899a6;
-  font-size: 14px;
-  cursor: pointer;
-  padding: 4px 6px;
-  border-radius: 6px;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
+
+
 
 /* Hover genérico */
 .comment-actions button:hover {
@@ -100,4 +82,63 @@
 .comment textarea:focus {
   outline: none;
   border-color: #1d9bf0;
+}
+.comment {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+
+  padding: 8px 0;
+  border-bottom: 1px solid #2f3336;
+}
+
+.comment-body {
+  flex: 1;
+}
+
+.comment-body strong {
+  display: block;
+  font-size: 0.85rem;
+  color: #8899a6;
+  margin-bottom: 2px;
+}
+
+.comment-body p {
+  margin: 0;
+  color: #e7e9ea;
+  font-size: 0.95rem;
+}
+
+.comment-body textarea {
+  width: 100%;
+  resize: vertical;
+  background: #000;
+  color: #e7e9ea;
+  border: 1px solid #2f3336;
+  border-radius: 6px;
+  padding: 6px;
+}
+
+/* 🔘 Ações */
+.comment-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.comment-actions button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #8899a6;
+  padding: 4px;
+  border-radius: 50%;
+  transition: background 0.2s, color 0.2s;
+}
+
+.comment-actions button:hover {
+  background: rgba(29, 155, 240, 0.1);
+  color: #1d9bf0;
 }
