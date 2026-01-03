@@ -1,9 +1,7 @@
 import { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import api from "../services/api";
 import "../styles/ForgotPassword.css";
-
-const API_BASE_URL = "http://127.0.0.1:9000";
 
 export default function ForgotPassword() {
   const [step, setStep] = useState(1);
@@ -16,11 +14,12 @@ export default function ForgotPassword() {
 
   async function requestReset() {
     setError("");
+
     try {
-      await axios.post(
-        `${API_BASE_URL}/api/password-reset/request/`,
-        { username }
-      );
+      await api.post("/password-reset/request/", {
+        username,
+      });
+
       setStep(2);
     } catch {
       setError("Usuário não encontrado");
@@ -29,19 +28,17 @@ export default function ForgotPassword() {
 
   async function confirmReset() {
     setError("");
+
     try {
-      await axios.post(
-        `${API_BASE_URL}/api/password-reset/confirm/`,
-        {
-          username,
-          new_password: password,
-        }
-      );
+      await api.post("/password-reset/confirm/", {
+        username,
+        new_password: password,
+      });
+
       setMessage("Senha redefinida com sucesso!");
-      
     } catch {
       setError("Erro ao redefinir senha");
-    } 
+    }
   }
 
   return (

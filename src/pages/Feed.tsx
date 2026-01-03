@@ -1,24 +1,26 @@
 import { useEffect, useState } from "react";
 import { AxiosError } from "axios";
+
 import TweetBox from "../components/TweetBox";
 import TweetCard from "../components/TweetCard";
 import SkeletonTweet from "../components/SkeletonTweet";
 import EmptyFeed from "../components/EmptyFeed";
 import TopBar from "../components/TopBar";
-import type { Tweet } from "../types/Tweet";
 
+import type { Tweet } from "../types/Tweet";
 import { getTweets } from "../services/tweets";
+import api from "../services/api";
+
 import { showError } from "../utils/toast";
 import { TOAST_MESSAGES } from "../utils/toastMessages";
 import "../styles/feed.css";
+
 interface SuggestedUser {
   id: number;
   username: string;
   avatar: string | null;
   is_following: boolean;
 }
-
-const API_BASE_URL = "http://127.0.0.1:9000";
 
 export default function Feed() {
   const [tweets, setTweets] = useState<Tweet[]>([]);
@@ -30,23 +32,16 @@ export default function Feed() {
   useEffect(() => {
     async function loadData() {
       try {
+        // 🔹 Tweets
         const data = await getTweets();
         setTweets(data ?? []);
 
+        // 🔹 Sugestões
         if (token) {
-          const res = await fetch(
-            `${API_BASE_URL}/api/users/suggestions/`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
+          const { data: users } = await api.get(
+            "/users/suggestions/"
           );
-
-          if (res.ok) {
-            const users = await res.json();
-            setSuggestions(users);
-          }
+          setSuggestions(users);
         }
       } catch (error: unknown) {
         if (error instanceof AxiosError) {
@@ -68,27 +63,29 @@ export default function Feed() {
     setTweets((prev) => [tweet, ...prev]);
   }
 
-  async function handleToggleFollow(userId: number, isFollowing: boolean) {
+  async function handleToggleFollow(
+    userId: number,
+    isFollowing: boolean
+  ) {
     if (!token) return;
 
-    const url = isFollowing
-      ? `${API_BASE_URL}/api/users/${userId}/unfollow/`
-      : `${API_BASE_URL}/api/follows/${userId}/`;
+    try {
+      if (isFollowing) {
+        await api.post(`/users/${userId}/unfollow/`);
+      } else {
+        await api.post(`/follows/${userId}/`);
+      }
 
-    await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    setSuggestions((prev) =>
-      prev.map((u) =>
-        u.id === userId
-          ? { ...u, is_following: !u.is_following }
-          : u
-      )
-    );
+      setSuggestions((prev) =>
+        prev.map((u) =>
+          u.id === userId
+            ? { ...u, is_following: !u.is_following }
+            : u
+        )
+      );
+    } catch {
+      showError("Erro ao seguir usuário");
+    }
   }
 
   return (

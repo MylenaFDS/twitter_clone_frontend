@@ -45,7 +45,8 @@ export default function UserProfile() {
   const [listLoading, setListLoading] = useState(false);
 
   const token = localStorage.getItem("access");
-  const API_BASE_URL = "http://127.0.0.1:9000";
+  const API_BASE_URL = "https://twitter-clone-ghw9.onrender.com";
+
 
   /* 🔹 Carrega perfil */
   const loadProfile = useCallback(async () => {

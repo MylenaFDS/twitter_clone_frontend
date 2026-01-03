@@ -26,17 +26,17 @@ interface SimpleUser {
 
 type Tab = "tweets" | "likes";
 
-const API_BASE_URL = "http://127.0.0.1:9000";
+/* 🔹 Backend no Render */
+const API_BASE_URL = "https://twitter-clone-ghw9.onrender.com";
 
 export default function Profile() {
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [user, setUser] = useState<UserProfile | null>(null);
-
   const [activeTab, setActiveTab] = useState<Tab>("tweets");
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  /* 🔹 Modal seguidores/seguindo */
+  /* 🔹 Modal seguidores / seguindo */
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] =
     useState<"followers" | "following">("followers");
@@ -128,16 +128,13 @@ export default function Profile() {
         `${API_BASE_URL}/api/users/${userId}/unfollow/`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
       if (!res.ok) throw new Error();
 
       setListUsers((prev) => prev.filter((u) => u.id !== userId));
-
       setUser((prev) =>
         prev
           ? { ...prev, following_count: prev.following_count - 1 }
@@ -148,7 +145,7 @@ export default function Profile() {
     }
   }
 
-  /* 🔹 Salvar perfil */
+  /* 🔹 Salvar perfil (Cloudinary) */
   async function handleSaveProfile(updatedData: {
     username?: string;
     bio?: string;
@@ -158,7 +155,8 @@ export default function Profile() {
     if (!token) return;
 
     const formData = new FormData();
-    if (updatedData.username) formData.append("username", updatedData.username);
+    if (updatedData.username)
+      formData.append("username", updatedData.username);
     if (updatedData.bio) formData.append("bio", updatedData.bio);
     if (updatedData.avatar) formData.append("avatar", updatedData.avatar);
     if (updatedData.banner) formData.append("banner", updatedData.banner);
@@ -194,7 +192,7 @@ export default function Profile() {
 
   return (
     <div className="profile">
-      {/* 🔹 Banner */}
+      {/* 🔹 Banner (Cloudinary URL direta) */}
       <div
         className="profile-banner"
         style={{
@@ -204,7 +202,7 @@ export default function Profile() {
         }}
       />
 
-      {/* 🔹 Avatar */}
+      {/* 🔹 Avatar (Cloudinary URL direta) */}
       <div className="profile-top">
         <img
           className="profile-avatar"
@@ -275,9 +273,14 @@ export default function Profile() {
       {/* 🔹 Modal seguidores / seguindo */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-twitter" onClick={(e) => e.stopPropagation()}>
+          <div
+            className="modal-twitter"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="modal-header">
-              <h3>{modalType === "followers" ? "Seguidores" : "Seguindo"}</h3>
+              <h3>
+                {modalType === "followers" ? "Seguidores" : "Seguindo"}
+              </h3>
               <button onClick={() => setShowModal(false)}>✕</button>
             </div>
 
@@ -293,7 +296,6 @@ export default function Profile() {
                       src={u.avatar ?? "https://via.placeholder.com/40"}
                       alt="avatar"
                     />
-
                     <span>@{u.username}</span>
 
                     {modalType === "following" && u.id !== user.id && (

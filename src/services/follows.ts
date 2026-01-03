@@ -1,35 +1,28 @@
 import api from "./api";
 
-const API_BASE_URL = "http://127.0.0.1:9000";
-
-function getAuthHeaders() {
-  const token = localStorage.getItem("access");
-  return {
-    Authorization: `Bearer ${token}`,
-  };
-}
-
+/**
+ * Seguir / deixar de seguir usuário
+ * POST /api/follows/:id/
+ */
 export async function toggleFollow(userId: number) {
-  const { data } = await api.post(`/follows/${userId}/`);
+  const { data } = await api.post(`/api/follows/${userId}/`);
   return data; // { following: true | false }
 }
 
+/**
+ * Listar seguidores
+ * GET /api/users/:id/followers/
+ */
 export async function getFollowers(userId: number) {
-  const res = await fetch(
-    `${API_BASE_URL}/api/users/${userId}/followers/`,
-    { headers: getAuthHeaders() }
-  );
-
-  if (!res.ok) throw new Error("Erro ao carregar seguidores");
-  return res.json();
+  const { data } = await api.get(`/api/users/${userId}/followers/`);
+  return data;
 }
 
+/**
+ * Listar seguindo
+ * GET /api/users/:id/following/
+ */
 export async function getFollowing(userId: number) {
-  const res = await fetch(
-    `${API_BASE_URL}/api/users/${userId}/following/`,
-    { headers: getAuthHeaders() }
-  );
-
-  if (!res.ok) throw new Error("Erro ao carregar seguindo");
-  return res.json();
+  const { data } = await api.get(`/api/users/${userId}/following/`);
+  return data;
 }

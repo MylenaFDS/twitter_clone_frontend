@@ -1,4 +1,5 @@
 import { useState } from "react";
+import "../styles/comments.css";
 
 interface Props {
   onSubmit: (content: string) => void;
@@ -22,7 +23,14 @@ export default function CommentForm({ onSubmit }: Props) {
         onChange={(e) => setContent(e.target.value)}
         placeholder="Escreva um comentário"
       />
-      <button>Comentar</button>
+
+      <button
+        type="submit"
+        className="comment-btn"
+        disabled={!content.trim()}
+      >
+        Comentar
+      </button>
     </form>
   );
 }

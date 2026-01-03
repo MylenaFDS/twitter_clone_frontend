@@ -1,26 +1,36 @@
 import React from "react";
-import Comment from "./Comments";
+import Comments from "./Comments";
 
 interface PostProps {
   id: number;
   author: string;
   content: string;
   likes: number;
-  comments: { id: number; author: string; content: string }[];
   onLike: (id: number) => void;
 }
 
-const Post: React.FC<PostProps> = ({ id, author, content, likes, comments, onLike }) => {
+const Post: React.FC<PostProps> = ({
+  id,
+  author,
+  content,
+  likes,
+  onLike,
+}) => {
   return (
     <div className="post">
-      <h4>{author}</h4>
-      <p>{content}</p>
-      <button onClick={() => onLike(id)}>Like ({likes})</button>
-      <div className="comments">
-        {comments.map(c => (
-          <Comment key={c.id} author={c.author} content={c.content} />
-        ))}
-      </div>
+      <h4 className="post-author">{author}</h4>
+
+      <p className="post-content">{content}</p>
+
+      <button
+        className="post-like-button"
+        onClick={() => onLike(id)}
+      >
+        ❤️ Like ({likes})
+      </button>
+
+      {/* Container de comentários */}
+      <Comments postId={id} />
     </div>
   );
 };
