@@ -14,6 +14,9 @@ export default function App() {
   return (
     <HashRouter>
       <Routes>
+        {/* 🔁 RAIZ → SEMPRE LOGIN */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
         {/* 🔓 Rotas públicas */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -61,16 +64,8 @@ export default function App() {
           }
         />
 
-        {/* 🔁 Fallback: qualquer rota inválida */}
-        <Route
-          path="*"
-          element={
-            <Navigate
-              to={isAuthenticated ? "/feed" : "/login"}
-              replace
-            />
-          }
-        />
+        {/* ❌ Qualquer rota inválida */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </HashRouter>
   );
