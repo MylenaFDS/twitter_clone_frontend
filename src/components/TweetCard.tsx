@@ -28,10 +28,13 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
   const [showComments, setShowComments] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // 🔹 usuário logado
-  const loggedUserId = Number(localStorage.getItem("user_id"));
-  const isMyTweet = tweet.author.id === loggedUserId;
+  // 🔑 usuário logado
+  const loggedUsername = localStorage.getItem("username");
 
+  // ✅ verifica se o tweet é do próprio usuário
+  const isMyTweet = loggedUsername === tweet.author.username;
+
+  // ✅ define rota correta
   const profileLink = isMyTweet
     ? "/profile"
     : `/users/${tweet.author.id}`;
@@ -92,7 +95,6 @@ export default function TweetCard({ tweet, onUnlike }: TweetProps) {
           <button onClick={() => setShowComments((p) => !p)}>
             💬 {commentsCount}
           </button>
-
           <button
             onClick={handleLike}
             className={liked ? "liked" : ""}
