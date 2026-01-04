@@ -1,0 +1,57 @@
+.bottom-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  height: 56px;
+  background: #000;
+  border-top: 1px solid #2f3336;
+
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+
+  z-index: 1000;
+}
+
+/* Ícones */
+.bottom-bar a,
+.bottom-bar button {
+  color: #e7e9ea;
+  font-size: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Ícone ativo */
+.bottom-bar .active {
+  color: #1d9bf0;
+}
+
+/* Botão central */
+.bottom-bar .tweet-button {
+  background: #1d9bf0;
+  color: #fff;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hover */
+.bottom-bar a:hover,
+.bottom-bar button:hover {
+  opacity: 0.8;
+}
+
+/* 🖥️ Esconde no desktop */
+@media (min-width: 769px) {
+  .bottom-bar {
+    display: none;
+  }
+}
