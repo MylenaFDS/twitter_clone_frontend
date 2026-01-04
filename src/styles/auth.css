@@ -125,3 +125,35 @@ body,
     padding: 24px;
   }
 }
+
+/* 📱 Mobile pequeno (até 360px) */
+@media (max-width: 360px) {
+  .login-box {
+    padding: 20px;
+  }
+
+  .login-box h1 {
+    font-size: 26px;
+  }
+
+  .login-box input,
+  .login-box button {
+    padding: 12px;
+    font-size: 14px;
+  }
+}
+
+/* 📱 Tablets */
+@media (min-width: 481px) and (max-width: 768px) {
+  .login-box {
+    max-width: 420px;
+    padding: 36px;
+  }
+}
+
+/* 🖥️ Telas grandes */
+@media (min-width: 1200px) {
+  .login-box {
+    max-width: 420px;
+  }
+}

@@ -107,3 +107,19 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* 📱 Mobile */
+@media (max-width: 480px) {
+  .tweet {
+    padding: 12px;
+  }
+
+  .tweet-text {
+    font-size: 14px;
+  }
+
+  .tweet-actions button {
+    font-size: 18px;
+    padding: 8px;
+  }
+}

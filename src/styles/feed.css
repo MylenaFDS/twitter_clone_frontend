@@ -147,3 +147,21 @@
     padding: 12px 0;
   }
 }
+
+/* 📱 Mobile */
+@media (max-width: 480px) {
+  .feed-container {
+    max-width: 100%;
+  }
+
+  .feed-header {
+    font-size: 18px;
+  }
+}
+
+/* 🖥️ Telas muito grandes */
+@media (min-width: 1400px) {
+  .feed-container {
+    max-width: 680px;
+  }
+}

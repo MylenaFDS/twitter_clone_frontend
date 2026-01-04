@@ -361,3 +361,24 @@
 .unfollow-btn:hover {
   background: rgba(224, 36, 94, 0.1);
 }
+
+/* 📱 Mobile */
+@media (max-width: 480px) {
+  .profile-avatar {
+    width: 90px;
+    height: 90px;
+  }
+
+  .profile-top {
+    margin-top: -45px;
+  }
+
+  .profile-header h2 {
+    font-size: 18px;
+  }
+
+  .follow-info {
+    gap: 12px;
+    font-size: 13px;
+  }
+}

@@ -74,14 +74,33 @@
   border-right: 1px solid #2f3336;
 }
 
-/* RESPONSIVO */
+/* 📱 Mobile */
 @media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
   .sidebar {
-    width: 72px;
-    padding: 12px;
+    display: none;
+  }
+
+  .content {
+    border-right: none;
+  }
+}
+
+/* 📱 Tablet */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .layout {
+    grid-template-columns: 72px 1fr;
+  }
+
+  .right-bar {
+    display: none;
   }
 
   .sidebar-menu span {
     display: none;
   }
 }
+

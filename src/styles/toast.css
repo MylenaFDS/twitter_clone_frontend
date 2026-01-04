@@ -16,3 +16,9 @@
     margin-top: 8px;
   }
 }
+
+@media (max-width: 360px) {
+  .custom-toast {
+    font-size: 12px;
+  }
+}
