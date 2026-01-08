@@ -1,4 +1,5 @@
 import { HashRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useState } from "react";
 import Feed from "./pages/Feed";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -8,36 +9,58 @@ import Layout from "./components/Layout";
 import ForgotPassword from "./pages/ForgotPassword";
 
 export default function App() {
-  const token = localStorage.getItem("access");
-  const isAuthenticated = Boolean(token);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    Boolean(localStorage.getItem("access"))
+  );
 
   return (
     <HashRouter>
-  <Routes>
+      <Routes>
 
-    <Route path="/" element={<Navigate to="/login" replace />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
-    <Route path="/login" element={<Login />} />
-    <Route path="/register" element={<Register />} />
-    <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route
+          path="/login"
+          element={<Login onLogin={() => setIsAuthenticated(true)} />}
+        />
 
-    <Route
-      path="/feed"
-      element={isAuthenticated ? <Layout><Feed /></Layout> : <Navigate to="/login" />}
-    />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
 
-    <Route
-      path="/profile"
-      element={isAuthenticated ? <Layout><Profile /></Layout> : <Navigate to="/login" />}
-    />
+        <Route
+          path="/feed"
+          element={
+            isAuthenticated ? (
+              <Layout><Feed /></Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
 
-    <Route
-      path="/users/:id"
-      element={isAuthenticated ? <Layout><UserProfile /></Layout> : <Navigate to="/login" />}
-    />
+        <Route
+          path="/profile"
+          element={
+            isAuthenticated ? (
+              <Layout><Profile /></Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
 
-  </Routes>
-</HashRouter>
+        <Route
+          path="/users/:id"
+          element={
+            isAuthenticated ? (
+              <Layout><UserProfile /></Layout>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
 
+      </Routes>
+    </HashRouter>
   );
 }

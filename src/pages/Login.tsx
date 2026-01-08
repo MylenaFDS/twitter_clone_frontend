@@ -3,7 +3,11 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
 import "../styles/auth.css";
 
-export default function Login() {
+interface LoginProps {
+  onLogin: () => void;
+}
+
+export default function Login({ onLogin }: LoginProps) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -27,7 +31,10 @@ export default function Login() {
 
       // ✅ ESSENCIAL para comentários / botão deletar
       localStorage.setItem("username", username);
-      
+
+      // 🔥 ATUALIZA O ESTADO DE AUTENTICAÇÃO NO APP
+      onLogin();
+
       navigate("/feed", { replace: true });
     } catch {
       setError("Usuário ou senha inválidos");
